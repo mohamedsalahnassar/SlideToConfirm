@@ -13,7 +13,7 @@ import UIKit
 /// ```
 ///
 /// The control sends `.primaryActionTriggered` when it commits, before `action` runs, and
-/// `.valueChanged` whenever ``state`` changes. Size it with Auto Layout: it has an intrinsic
+/// `.valueChanged` whenever ``confirmationState`` changes. Size it with Auto Layout: it has an intrinsic
 /// height (or width, for vertical directions) and stretches along its direction up to
 /// ``SlideToConfirmConfiguration/maxLength``, centered.
 @MainActor
@@ -46,11 +46,11 @@ open class SlideToConfirmControl: UIControl {
     /// failure. When `nil`, the control succeeds straight away.
     public var action: (@MainActor (SlideToConfirmTrigger) async throws -> Void)?
 
-    /// Called whenever ``state`` changes, including every frame of progress.
-    public var stateDidChange: (@MainActor (SlideToConfirmState) -> Void)?
+    /// Called whenever ``confirmationState`` changes, including every frame of progress.
+    public var confirmationStateDidChange: (@MainActor (SlideToConfirmState) -> Void)?
 
     /// The control's current state.
-    public private(set) var state: SlideToConfirmState = .idle
+    public private(set) var confirmationState: SlideToConfirmState = .idle
 
     /// The trigger of the most recent confirmation.
     public private(set) var lastTrigger: SlideToConfirmTrigger?
@@ -169,9 +169,9 @@ open class SlideToConfirmControl: UIControl {
     }
 
     private func update(_ newState: SlideToConfirmState) {
-        guard newState != state else { return }
-        state = newState
-        stateDidChange?(newState)
+        guard newState != confirmationState else { return }
+        confirmationState = newState
+        confirmationStateDidChange?(newState)
         sendActions(for: .valueChanged)
     }
 

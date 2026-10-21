@@ -1,0 +1,16 @@
+name: Feature request
+description: Suggest a new option or behavior.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to build?
+      description: Describe the screen or flow, not just the API you'd like.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help?
+      description: An option, a modifier, a new hold behavior… Sketch the API if you have one in mind.

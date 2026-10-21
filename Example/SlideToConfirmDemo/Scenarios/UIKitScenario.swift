@@ -80,7 +80,7 @@ final class UIKitDemoViewController: UIViewController {
         control.addAction(UIAction { [weak self] _ in
             self?.append("primaryActionTriggered")
         }, for: .primaryActionTriggered)
-        control.stateDidChange = { [weak self] state in
+        control.confirmationStateDidChange = { [weak self] state in
             guard state.interaction != .dragging, state.interaction != .holding else { return }
             self?.append("state → \(state.phase)")
         }
