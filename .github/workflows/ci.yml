@@ -52,3 +52,24 @@ jobs:
             > xcodebuild.log 2>&1 || status=$?
           grep -E "error:|warning:|failed|passed|Executed|\*\* " xcodebuild.log | grep -v "^ld: warning" | tail -200
           exit $status
+
+  demo:
+    name: iOS · demo app + UI tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - name: Pick a simulator
+        run: echo "SIMULATOR_ID=$(scripts/pick-simulator.sh)" >> "$GITHUB_ENV"
+      - name: Build and run UI tests
+        run: |
+          status=0
+          xcodebuild test \
+            -project Example/SlideToConfirmDemo.xcodeproj \
+            -scheme SlideToConfirmDemo \
+            -destination "id=$SIMULATOR_ID" \
+            > demo.log 2>&1 || status=$?
+          grep -E "error:|warning:|failed|passed|Executed|\*\* " demo.log | grep -v "^ld: warning" | tail -200
+          exit $status

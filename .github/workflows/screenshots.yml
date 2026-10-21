@@ -1,0 +1,82 @@
+name: Screenshots
+
+# Renders the README images, captures the demo app on every screen and records the demo GIF,
+# then commits them to the branch. Run it manually, or push a commit whose message contains
+# "[screenshots]".
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[screenshots]')
+    runs-on: macos-15
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Boot a simulator
+        run: |
+          SIMULATOR_ID=$(scripts/pick-simulator.sh)
+          echo "SIMULATOR_ID=$SIMULATOR_ID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$SIMULATOR_ID" || true
+          xcrun simctl bootstatus "$SIMULATOR_ID" -b
+          xcrun simctl status_bar "$SIMULATOR_ID" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+          xcrun simctl ui "$SIMULATOR_ID" content_size large || true
+
+      - name: Render component images
+        run: |
+          mkdir -p docs/images
+          status=0
+          TEST_RUNNER_SLIDETOCONFIRM_RENDER_DIR="$PWD/docs/images" xcodebuild test \
+            -scheme SlideToConfirm \
+            -destination "id=$SIMULATOR_ID" \
+            -only-testing:SlideToConfirmTests/ReadmeImageTests \
+            > render.log 2>&1 || status=$?
+          grep -E "error:|failed|passed|Executed" render.log | tail -40
+          ls -la docs/images
+          exit $status
+
+      - name: Build the demo app
+        run: |
+          status=0
+          xcodebuild build-for-testing \
+            -project Example/SlideToConfirmDemo.xcodeproj \
+            -scheme SlideToConfirmDemo \
+            -destination "id=$SIMULATOR_ID" \
+            -derivedDataPath build/DerivedData \
+            > build.log 2>&1 || status=$?
+          grep -E "error:|warning:|\*\* " build.log | tail -60
+          exit $status
+
+      - name: Capture screenshots
+        run: scripts/capture-screenshots.sh "$SIMULATOR_ID" build/DerivedData/Build/Products/Debug-iphonesimulator/SlideToConfirmDemo.app docs/screenshots
+
+      - name: Record the demo
+        run: |
+          scripts/record-demo.sh "$SIMULATOR_ID" build/DerivedData docs/images/demo-light.gif light
+          scripts/record-demo.sh "$SIMULATOR_ID" build/DerivedData docs/images/demo-dark.gif dark
+
+      - name: Commit images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "No image changes."
+            exit 0
+          fi
+          git commit -m "Update README images and screenshots"
+          git push origin "HEAD:${{ github.ref_name }}"

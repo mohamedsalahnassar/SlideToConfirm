@@ -48,7 +48,7 @@ public enum SlideToConfirmTrigger: String, Sendable, Hashable, CaseIterable {
 ///
 /// All behaviors share the same drag path. They differ only in what moves while the
 /// person holds.
-public enum SlideToConfirmHoldBehavior: String, Sendable, Hashable, CaseIterable {
+public enum SlideToConfirmHoldBehavior: String, Sendable, Hashable, CaseIterable, Identifiable {
     /// The knob glides to the end and a solid fill follows it. One progress value drives both.
     ///
     /// The label rides ahead of the knob, then hands over to a label on the fill.
@@ -63,6 +63,8 @@ public enum SlideToConfirmHoldBehavior: String, Sendable, Hashable, CaseIterable
     case glide
     /// Holding does nothing. The control is slide-only.
     case none
+
+    public var id: Self { self }
 }
 
 /// A moment worth a haptic. Delivered to ``SlideToConfirmHaptics``.

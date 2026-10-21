@@ -2,7 +2,7 @@
 import SwiftUI
 
 /// The direction the knob travels to confirm.
-public enum SlideToConfirmDirection: String, Sendable, Hashable, CaseIterable {
+public enum SlideToConfirmDirection: String, Sendable, Hashable, CaseIterable, Identifiable {
     /// From the leading edge to the trailing edge. Mirrors automatically in right-to-left layouts.
     case trailing
     /// From top to bottom. Suits a vertical bar, such as the tab zone on a trailing hardware edge.
@@ -13,6 +13,8 @@ public enum SlideToConfirmDirection: String, Sendable, Hashable, CaseIterable {
 
     /// `true` for ``down`` and ``up``.
     public var isVertical: Bool { self != .trailing }
+
+    public var id: Self { self }
 }
 
 /// What happens after the action succeeds.
