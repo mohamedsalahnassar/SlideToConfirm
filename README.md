@@ -178,18 +178,21 @@ returns to idle, ready to try again.
 
 ## How it works
 
-```
- touch down ──▶ 180 ms ──┬─▶ finger moved 6 pt along the knob ─▶ DRAG ──▶ release past 90% ─┐
-                         │                                         └──▶ release early ─▶ spring back
-                         └─▶ finger still ─▶ HOLD ─▶ knob glides, track fills for 1.2 s ───┤
-                                              ├──▶ moved 12 pt on the knob ─▶ take over as DRAG
-                                              └──▶ lift early ─▶ spring back                 │
-                                                                                            ▼
-                         keyboard / VoiceOver ─▶ snap to the end ─────────────────▶ COMMIT (haptic)
-                                                                                            │
-                                                     PROCESSING (locked) ◀──────────────────┘
-                                                       ├──▶ action returns ─▶ SUCCESS
-                                                       └──▶ action throws  ─▶ FAILURE ─▶ shake ─▶ IDLE
+```mermaid
+flowchart LR
+    T([Touch down]) -->|moved 6 pt along the knob| D[Drag]
+    T -->|still for 180 ms| H[Hold<br/>knob glides, track fills]
+    H -->|moved 12 pt on the knob| D
+    H -->|lift early| B[Spring back]
+    D -->|release before 90%| B
+    D -->|release past 90%| C{{Commit · haptic}}
+    H -->|held for 1.2 s| C
+    K([Keyboard · VoiceOver]) --> C
+    C --> P[Processing<br/>locked]
+    P -->|action returns| S([Success])
+    P -->|action throws| F[Failure<br/>shake · reason]
+    F --> I([Idle])
+    B --> I
 ```
 
 1. **Touch down.** For 180 ms nothing moves. A 6 pt move along the track on the knob means drag; a
@@ -776,7 +779,7 @@ for more languages are welcome.
 </details>
 
 <details>
-<summary><b>Why does the control stay put on iPad?</b></summary>
+<summary><b>Why doesn't the control fill the whole width on iPad?</b></summary>
 
 It is capped at `maxLength` (440 pt) so the thumb never travels across a whole screen. Set
 `maxLength = nil` to fill any width.

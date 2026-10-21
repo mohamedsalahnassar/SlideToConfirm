@@ -139,5 +139,8 @@ final class DemoRecordingTests: XCTestCase {
         if let path = environment["RECORD_META"] {
             try "\(Date().timeIntervalSince1970)".write(toFile: path + ".end", atomically: true, encoding: .utf8)
         }
+        // The simulator's video clock runs a little behind the wall clock, so stay on screen
+        // past the end marker to keep the trimmed clip inside the app.
+        Thread.sleep(forTimeInterval: 6)
     }
 }
