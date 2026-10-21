@@ -191,9 +191,9 @@ struct BottomConfirmBar<Content: View>: View {
 }
 
 /// A row in a details card.
-struct DetailRow: View {
+struct DetailRow<Value: View>: View {
     let title: Text
-    let value: Text
+    let value: Value
 
     var body: some View {
         HStack(spacing: 12) {
