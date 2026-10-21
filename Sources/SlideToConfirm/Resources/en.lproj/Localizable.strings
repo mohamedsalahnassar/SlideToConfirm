@@ -1,0 +1,20 @@
+/* Shown while a drag is past the commit threshold. */
+"Release to confirm" = "Release to confirm";
+/* Shown while the person holds the control. */
+"Keep holding…" = "Keep holding…";
+/* Shown while the action runs. */
+"Processing…" = "Processing…";
+/* Shown after the action succeeds. */
+"Done" = "Done";
+/* Shown after the action fails. */
+"Failed · try again" = "Failed · try again";
+/* VoiceOver hint for the control. */
+"Double-tap to confirm." = "Double-tap to confirm.";
+/* Default title when holding is enabled. */
+"Slide or hold to confirm" = "Slide or hold to confirm";
+/* Default title when holding is disabled. */
+"Slide to confirm" = "Slide to confirm";
+/* Accessibility alert button. */
+"Confirm" = "Confirm";
+/* Accessibility alert button. */
+"Cancel" = "Cancel";
