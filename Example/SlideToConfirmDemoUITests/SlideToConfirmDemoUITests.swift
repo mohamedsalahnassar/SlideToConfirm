@@ -65,6 +65,29 @@ final class SlideToConfirmDemoUITests: XCTestCase {
         waitForReadout(app, containing: "by dragging")
     }
 
+    /// The recording's sequence: confirm by holding, confirm by dragging, then release a hold early.
+    func testEarlyReleaseAfterConfirmations() {
+        let app = launch(["-debugReadout"])
+        let control = app.buttons["hero.control"]
+        let readout = app.staticTexts["hero.readout"]
+        XCTAssertTrue(control.waitForExistence(timeout: 10))
+
+        control.coordinate(withNormalizedOffset: CGVector(dx: 0.62, dy: 0.5)).press(forDuration: 1.9)
+        waitForReadout(app, containing: "by holding")
+        waitForReadout(app, containing: "Try it again")
+
+        let knob = control.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5)).withOffset(CGVector(dx: 30, dy: 0))
+        let end = control.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 0.5)).withOffset(CGVector(dx: -4, dy: 0))
+        knob.press(forDuration: 0.08, thenDragTo: end, withVelocity: XCUIGestureVelocity(260), thenHoldForDuration: 0.35)
+        waitForReadout(app, containing: "by dragging")
+        waitForReadout(app, containing: "Try it again")
+
+        control.coordinate(withNormalizedOffset: CGVector(dx: 0.62, dy: 0.5)).press(forDuration: 0.8)
+        let released = NSPredicate(format: "label CONTAINS %@", "Released early")
+        let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: released, object: readout)], timeout: 4)
+        XCTAssertEqual(result, .completed, "Readout “\(readout.label)”; delivered states: \(readout.value as? String ?? "?")")
+    }
+
     func testControlIsAnAccessibleButton() {
         let app = launch()
         let control = app.buttons["hero.control"]
