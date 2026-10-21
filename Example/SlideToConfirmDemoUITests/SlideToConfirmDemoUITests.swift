@@ -134,6 +134,10 @@ final class DemoRecordingTests: XCTestCase {
 
         // 3. Hold, then let go early: it springs back.
         control.coordinate(withNormalizedOffset: CGVector(dx: 0.62, dy: 0.5)).press(forDuration: 0.8)
-        Thread.sleep(forTimeInterval: 1.8)
+        Thread.sleep(forTimeInterval: 2.2)
+
+        if let path = environment["RECORD_META"] {
+            try "\(Date().timeIntervalSince1970)".write(toFile: path + ".end", atomically: true, encoding: .utf8)
+        }
     }
 }

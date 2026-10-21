@@ -124,6 +124,9 @@ struct SlideTrack: View {
     }
 
     /// A full-track layer with `content` centered in the stretch between `insets`.
+    ///
+    /// The text swaps instantly, as a cross-fade between two labels reads as a glitch; its region
+    /// and opacity still animate.
     private func labelLayer<Content: View>(
         insets: TrackLayout.Insets,
         @ViewBuilder content: () -> Content
@@ -137,11 +140,13 @@ struct SlideTrack: View {
                 Group {
                     if clipsInsteadOfTruncating {
                         content()
+                            .transaction { $0.animation = nil }
                             .fixedSize(horizontal: true, vertical: false)
                             .frame(width: width, height: thickness)
                             .clipped()
                     } else {
                         content()
+                            .transaction { $0.animation = nil }
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .truncationMode(.tail)

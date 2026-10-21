@@ -38,9 +38,11 @@ sleep 1
 kill -INT "$RECORDER"
 wait "$RECORDER" || true
 
-read -r OFFSET CROP < <(python3 - "$META" "$RECORD_START" "$VIDEO" <<'PY'
-import json, subprocess, sys
+read -r OFFSET DURATION CROP < <(python3 - "$META" "$RECORD_START" "$VIDEO" <<'PY'
+import json, os, subprocess, sys
 meta = json.load(open(sys.argv[1]))
+end_path = sys.argv[1] + ".end"
+end = float(open(end_path).read()) if os.path.exists(end_path) else meta["start"] + 17
 record_start = float(sys.argv[2])
 probe = subprocess.run(
     ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", sys.argv[3]],
@@ -56,12 +58,13 @@ h = min(video_height - y, int(meta["height"] * scale + 2 * pad))
 w -= w % 2
 h -= h % 2
 offset = max(0, meta["start"] - record_start + 0.2)
-print(f"{offset:.2f} {w}:{h}:{x}:{y}")
+duration = end - meta["start"] - 0.2
+print(f"{offset:.2f} {duration:.2f} {w}:{h}:{x}:{y}")
 PY
 )
 
-echo "Trimming from ${OFFSET}s, crop ${CROP}"
-ffmpeg -y -loglevel error -ss "$OFFSET" -t 16.4 -i "$VIDEO" \
+echo "Trimming ${DURATION}s from ${OFFSET}s, crop ${CROP}"
+ffmpeg -y -loglevel error -ss "$OFFSET" -t "$DURATION" -i "$VIDEO" \
     -vf "crop=${CROP},fps=22,scale=680:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff:max_colors=200[p];[b][p]paletteuse=dither=sierra2_4a:diff_mode=rectangle" \
     -loop 0 "$OUTPUT"
 ls -lh "$OUTPUT"

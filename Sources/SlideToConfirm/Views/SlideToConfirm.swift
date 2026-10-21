@@ -135,7 +135,11 @@ public struct SlideToConfirm: View {
         .stcOnChange(of: isEnabled) { enabled in
             perform { $0.setEnabled(enabled, at: $1) }
         }
+        .stcOnChange(of: configuration.engineSettings) { settings in
+            engine.updateSettings(settings)
+        }
         .onAppear {
+            engine.updateSettings(configuration.engineSettings)
             if !isEnabled { perform { $0.setEnabled(false, at: $1) } }
         }
         .task(id: previewState == nil ? engine.nextDeadline : nil) {
@@ -144,7 +148,7 @@ public struct SlideToConfirm: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(labels.idle)
         .accessibilityValue(accessibilityValue)
-        .accessibilityHint(engine.phase == .idle ? labels.accessibilityHint : Text(verbatim: ""))
+        .accessibilityHint(displayedEngine.phase == .idle ? labels.accessibilityHint : Text(verbatim: ""))
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { activateFromAccessibility() }
         .modifier(KeyboardActivation(isEnabled: isEnabled && previewState == nil) {
@@ -254,11 +258,12 @@ public struct SlideToConfirm: View {
     }
 
     private var accessibilityValue: Text {
-        switch engine.phase {
+        let shown = displayedEngine
+        switch shown.phase {
         case .idle: return Text(verbatim: "")
         case .processing: return labels.processing
         case .success: return labels.success
-        case .failure: return labels.text(for: .failure, failureMessage: engine.failureMessage)
+        case .failure: return labels.text(for: .failure, failureMessage: shown.failureMessage)
         }
     }
 
