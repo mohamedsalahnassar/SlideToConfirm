@@ -208,11 +208,12 @@ struct SlideTrack: View {
     /// fall the same way whatever the slide direction.
     private func rendererVector(for shadow: SlideToConfirmShadow?) -> CGSize {
         guard let shadow else { return .zero }
-        let radians = -rotation.radians
-        return CGSize(
-            width: shadow.x * cos(radians) - shadow.y * sin(radians),
-            height: shadow.x * sin(radians) + shadow.y * cos(radians)
-        )
+        let radians = CGFloat(-rotation.radians)
+        let cosine: CGFloat = cos(radians)
+        let sine: CGFloat = sin(radians)
+        let width: CGFloat = shadow.x * cosine - shadow.y * sine
+        let height: CGFloat = shadow.x * sine + shadow.y * cosine
+        return CGSize(width: width, height: height)
     }
 }
 
