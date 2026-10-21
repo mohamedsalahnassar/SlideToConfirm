@@ -44,8 +44,15 @@ final class SlideToConfirmDemoUITests: XCTestCase {
         let app = launch()
         let control = app.buttons["hero.control"]
         XCTAssertTrue(control.waitForExistence(timeout: 10))
-        control.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5)).press(forDuration: 0.7)
-        waitForReadout(app, containing: "Released early", timeout: 4)
+        let readout = app.staticTexts["hero.readout"]
+        // Several releases in a row: the last state reported must always be the release, never a
+        // stale frame from the hold.
+        for (attempt, duration) in [0.7, 0.5, 0.9].enumerated() {
+            control.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5)).press(forDuration: duration)
+            let released = NSPredicate(format: "label CONTAINS %@ AND NOT (label CONTAINS %@)", "Released early", "Holding")
+            let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: released, object: readout)], timeout: 4)
+            XCTAssertEqual(result, .completed, "Attempt \(attempt + 1): readout was “\(readout.label)”")
+        }
     }
 
     func testDraggingRightToLeftConfirmsInArabic() {

@@ -42,6 +42,7 @@ public struct SlideToConfirm: View {
     @State private var shakes = 0
     @State private var isGestureActive = false
     @State private var isShowingAccessibilityAlert = false
+    @State private var reporter = StateReporter()
     @GestureState private var isTouching = false
 
     // MARK: Initializers
@@ -185,6 +186,7 @@ public struct SlideToConfirm: View {
         )
         let displayed = displayedEngine
         let isPreview = previewState != nil
+        let revision = reporter.revision
 
         return TimelineView(.animation(minimumInterval: nil, paused: !displayed.isTimeDependent)) { context in
             let snapshot = resolvedSnapshot(displayed, at: context.date)
@@ -206,7 +208,9 @@ public struct SlideToConfirm: View {
             .frame(width: length, height: thickness)
             .rotationEffect(rotation)
             .frame(width: size.width, height: size.height)
-            .stcOnChange(of: snapshot.publicState) { stateHandler?($0) }
+            .stcOnChange(of: snapshot.publicState) { state in
+                reporter.report(state, revision: revision, to: stateHandler)
+            }
         }
         .contentShape(TrackShape(cornerRadius: configuration.cornerRadius))
         .gesture(dragGesture(layout: layout), including: isPreview ? .none : .all)
@@ -330,6 +334,10 @@ public struct SlideToConfirm: View {
         } else {
             engine = next
         }
+        reporter.revision &+= 1
+        // Discrete changes are reported here as well as per frame, so a release or an outcome is
+        // never lost if the timeline stops redrawing in the same update.
+        reporter.report(next.snapshot(at: now).publicState(isEnabled: isEnabled), revision: reporter.revision, to: stateHandler)
 
         if !wasFailure, next.phase == .failure, configuration.shakesOnFailure, !reduceMotion {
             withAnimation(.linear(duration: 0.42)) { shakes += 1 }
@@ -392,6 +400,19 @@ public struct SlideToConfirm: View {
         } else {
             perform { $0.activate(.accessibility, at: $1) }
         }
+    }
+}
+
+/// Delivers each state change to the observer once, and never from a frame drawn for an engine
+/// state that has since been replaced.
+private final class StateReporter {
+    var revision = 0
+    private var lastReported: SlideToConfirmState?
+
+    func report(_ state: SlideToConfirmState, revision: Int, to handler: ((SlideToConfirmState) -> Void)?) {
+        guard revision == self.revision, state != lastReported else { return }
+        lastReported = state
+        handler?(state)
     }
 }
 

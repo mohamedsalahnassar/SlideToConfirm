@@ -80,6 +80,13 @@ struct ConfirmSnapshot: Equatable {
         }
     }
 
+    /// The public state, disabled when either the engine or the environment is.
+    func publicState(isEnabled environmentEnabled: Bool) -> SlideToConfirmState {
+        var state = publicState
+        state.isEnabled = state.isEnabled && environmentEnabled
+        return state
+    }
+
     var publicState: SlideToConfirmState {
         SlideToConfirmState(
             phase: phase,
