@@ -113,9 +113,6 @@ struct HeroStage: View {
     @State private var readout: Text = Text("Try it: drag the knob, or press and hold anywhere on the pill.")
     @State private var lastTrigger: SlideToConfirmTrigger?
     @State private var wasInteracting = false
-    /// The last few delivered states, exposed to UI tests with `-debugReadout`.
-    @State private var debugLog: [String] = []
-    private let showsDebugLog = ProcessInfo.processInfo.arguments.contains("-debugReadout")
 
     var body: some View {
         VStack(spacing: 22) {
@@ -134,7 +131,6 @@ struct HeroStage: View {
                 .frame(minHeight: 40)
                 .contentTransition(.numericText())
                 .accessibilityIdentifier("hero.readout")
-                .accessibilityValue(showsDebugLog ? debugLog.joined(separator: " | ") : "")
 
             FlowLayout(spacing: 8, alignment: .center) {
                 Chip(title: "Drag", detail: "release past 90%")
@@ -159,10 +155,6 @@ struct HeroStage: View {
 
     private func updateReadout(_ state: SlideToConfirmState) {
         let percent = Int((state.progress * 100).rounded())
-        if showsDebugLog {
-            let entry = "\(state.phase)/\(state.interaction)/\(percent) wi=\(wasInteracting) lt=\(lastTrigger.map { "\($0)" } ?? "nil")"
-            debugLog = Array((debugLog + [entry]).suffix(8))
-        }
         switch (state.phase, state.interaction) {
         case (.idle, .holding):
             wasInteracting = true

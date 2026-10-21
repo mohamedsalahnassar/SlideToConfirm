@@ -146,6 +146,9 @@ public struct SlideToConfirm: View {
         .task(id: previewState == nil ? engine.nextDeadline : nil) {
             await runNextDeadline()
         }
+        .task(id: previewState == nil && engine.isTimeDependent) {
+            await reportProgressWhileTimeDependent()
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(labels.idle)
         .accessibilityValue(accessibilityValue)
@@ -186,7 +189,6 @@ public struct SlideToConfirm: View {
         )
         let displayed = displayedEngine
         let isPreview = previewState != nil
-        let revision = reporter.revision
 
         return TimelineView(.animation(minimumInterval: nil, paused: !displayed.isTimeDependent)) { context in
             let snapshot = resolvedSnapshot(displayed, at: context.date)
@@ -208,9 +210,7 @@ public struct SlideToConfirm: View {
             .frame(width: length, height: thickness)
             .rotationEffect(rotation)
             .frame(width: size.width, height: size.height)
-            .stcOnChange(of: snapshot.publicState) { state in
-                reporter.report(state, revision: revision, to: stateHandler)
-            }
+
         }
         .contentShape(TrackShape(cornerRadius: configuration.cornerRadius))
         .gesture(dragGesture(layout: layout), including: isPreview ? .none : .all)
@@ -334,10 +334,9 @@ public struct SlideToConfirm: View {
         } else {
             engine = next
         }
-        reporter.revision &+= 1
-        // Discrete changes are reported here as well as per frame, so a release or an outcome is
-        // never lost if the timeline stops redrawing in the same update.
-        reporter.report(next.snapshot(at: now).publicState(isEnabled: isEnabled), revision: reporter.revision, to: stateHandler)
+        // Report from the engine itself, never from a rendered frame, so observers always see the
+        // state the control is actually in.
+        reporter.report(next.snapshot(at: now).publicState(isEnabled: isEnabled), to: stateHandler)
 
         if !wasFailure, next.phase == .failure, configuration.shakesOnFailure, !reduceMotion {
             withAnimation(.linear(duration: 0.42)) { shakes += 1 }
@@ -393,6 +392,17 @@ public struct SlideToConfirm: View {
         perform { engine, now in engine.tick(at: max(now, deadline)) }
     }
 
+    /// Reports hold and drain progress to the observer while it changes without input. Reads the
+    /// live engine on every tick and stops as soon as the hold or drain ends.
+    private func reportProgressWhileTimeDependent() async {
+        guard previewState == nil else { return }
+        while !Task.isCancelled, engine.isTimeDependent {
+            let now = Date().timeIntervalSinceReferenceDate
+            reporter.report(engine.snapshot(at: now).publicState(isEnabled: isEnabled), to: stateHandler)
+            try? await Task.sleep(nanoseconds: 16_000_000)
+        }
+    }
+
     private func activateFromAccessibility() {
         guard isEnabled, previewState == nil, engine.phase != .processing, engine.phase != .success else { return }
         if accessibilityAlert != nil {
@@ -403,14 +413,12 @@ public struct SlideToConfirm: View {
     }
 }
 
-/// Delivers each state change to the observer once, and never from a frame drawn for an engine
-/// state that has since been replaced.
+/// Delivers each state change to the observer once.
 private final class StateReporter {
-    var revision = 0
     private var lastReported: SlideToConfirmState?
 
-    func report(_ state: SlideToConfirmState, revision: Int, to handler: ((SlideToConfirmState) -> Void)?) {
-        guard revision == self.revision, state != lastReported else { return }
+    func report(_ state: SlideToConfirmState, to handler: ((SlideToConfirmState) -> Void)?) {
+        guard state != lastReported else { return }
         lastReported = state
         handler?(state)
     }

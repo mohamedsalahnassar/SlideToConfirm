@@ -151,8 +151,9 @@ extension View {
         ))
     }
 
-    /// Calls `action` whenever a confirm control in this view changes state, including every frame
-    /// of progress while dragging or holding.
+    /// Calls `action` whenever a confirm control in this view changes state, including continuous
+    /// progress while dragging or holding. Called on the main actor, from the control's own state,
+    /// so the last call always matches what the control is doing.
     public func onSlideToConfirmStateChange(_ action: @escaping (SlideToConfirmState) -> Void) -> some View {
         environment(\.slideToConfirmStateHandler, action)
     }

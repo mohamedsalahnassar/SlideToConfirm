@@ -67,7 +67,7 @@ final class SlideToConfirmDemoUITests: XCTestCase {
 
     /// The recording's sequence: confirm by holding, confirm by dragging, then release a hold early.
     func testEarlyReleaseAfterConfirmations() {
-        let app = launch(["-debugReadout"])
+        let app = launch()
         let control = app.buttons["hero.control"]
         let readout = app.staticTexts["hero.readout"]
         XCTAssertTrue(control.waitForExistence(timeout: 10))
@@ -85,10 +85,7 @@ final class SlideToConfirmDemoUITests: XCTestCase {
         control.coordinate(withNormalizedOffset: CGVector(dx: 0.62, dy: 0.5)).press(forDuration: 0.8)
         // Don't poll: the recording never touches the accessibility tree after the release either.
         Thread.sleep(forTimeInterval: 3)
-        let label = readout.label
-        let log = readout.value as? String ?? "?"
-        print("READOUT-DEBUG label=\(label) log=\(log)")
-        XCTAssertTrue(label.contains("Released early"), "Readout “\(label)”; delivered states: \(log)")
+        XCTAssertTrue(readout.label.contains("Released early"), "Readout was “\(readout.label)”")
     }
 
     func testControlIsAnAccessibleButton() {
