@@ -440,7 +440,7 @@ On a Mac with a Force Touch trackpad the defaults play trackpad feedback.
 ### Observing state
 
 React to the control while it's in use, for example to drive an illustration or a readout.
-The handler runs on every change, including each frame of progress while dragging or holding:
+The handler runs on the main actor for every change, including continuous progress while dragging or holding, and its last call always matches what the control is doing:
 
 ```swift
 @State private var openness = 0.0
