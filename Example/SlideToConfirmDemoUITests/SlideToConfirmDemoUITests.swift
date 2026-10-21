@@ -83,9 +83,12 @@ final class SlideToConfirmDemoUITests: XCTestCase {
         waitForReadout(app, containing: "Try it again")
 
         control.coordinate(withNormalizedOffset: CGVector(dx: 0.62, dy: 0.5)).press(forDuration: 0.8)
-        let released = NSPredicate(format: "label CONTAINS %@", "Released early")
-        let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: released, object: readout)], timeout: 4)
-        XCTAssertEqual(result, .completed, "Readout “\(readout.label)”; delivered states: \(readout.value as? String ?? "?")")
+        // Don't poll: the recording never touches the accessibility tree after the release either.
+        Thread.sleep(forTimeInterval: 3)
+        let label = readout.label
+        let log = readout.value as? String ?? "?"
+        print("READOUT-DEBUG label=\(label) log=\(log)")
+        XCTAssertTrue(label.contains("Released early"), "Readout “\(label)”; delivered states: \(log)")
     }
 
     func testControlIsAnAccessibleButton() {
