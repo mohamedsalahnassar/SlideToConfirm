@@ -198,13 +198,16 @@ struct LanguagePicker: View {
 
     var body: some View {
         @Bindable var model = model
-        Picker("Language", selection: $model.language) {
-            ForEach(DemoLanguage.allCases) { language in
-                Text(verbatim: language.title).tag(language)
+        Menu {
+            Picker("Language", selection: $model.language) {
+                ForEach(DemoLanguage.allCases) { language in
+                    Text(verbatim: language.title).tag(language)
+                }
             }
+        } label: {
+            Image(systemName: "globe")
+                .accessibilityLabel("Language")
         }
-        .pickerStyle(.menu)
-        .environment(\.layoutDirection, .leftToRight)
         .accessibilityIdentifier("languagePicker")
     }
 }

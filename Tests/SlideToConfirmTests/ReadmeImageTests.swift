@@ -185,27 +185,25 @@ private struct HoldBehaviorsCard: View {
     let scheme: ColorScheme
 
     var body: some View {
-        Board(scheme: scheme) {
-            HStack(alignment: .top, spacing: 18) {
-                column(.combined, "Combined", "Knob glides, solid fill follows. Recommended.")
-                column(.fill, "Fill", "Knob stays put, the track fills behind the label.")
-                column(.glide, "Glide", "Knob glides with the soft drag fill.")
+        Board(scheme: scheme, width: 980) {
+            VStack(spacing: 14) {
+                row(.combined, "Combined", "The knob glides and a solid fill follows it. Recommended.")
+                row(.fill, "Fill", "The knob stays put; the track fills behind the label.")
+                row(.glide, "Glide", "The knob glides with the soft drag fill.")
             }
         }
     }
 
-    private func column(_ behavior: SlideToConfirmHoldBehavior, _ title: String, _ detail: String) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+    private func row(_ behavior: SlideToConfirmHoldBehavior, _ title: String, _ detail: String) -> some View {
+        HStack(spacing: 18) {
             Caption(title: title, detail: detail, scheme: scheme)
-            VStack(spacing: 12) {
-                SlideToConfirm(labels: sendLabels) {}
-                    .slideToConfirmPreviewState(.holding(progress: 0.3))
-                SlideToConfirm(labels: sendLabels) {}
-                    .slideToConfirmPreviewState(.holding(progress: 0.72))
-            }
-            .slideToConfirmHoldBehavior(behavior)
-            .slideToConfirmConfiguration { $0.labelSize = 14; $0.thickness = 54 }
+                .frame(width: 190, alignment: .leading)
+            SlideToConfirm(labels: sendLabels) {}
+                .slideToConfirmPreviewState(.holding(progress: behavior == .fill ? 0.3 : 0.14))
+            SlideToConfirm(labels: sendLabels) {}
+                .slideToConfirmPreviewState(.holding(progress: behavior == .fill ? 0.72 : 0.84))
         }
+        .slideToConfirmHoldBehavior(behavior)
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Palette.card(scheme), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -221,7 +219,7 @@ private struct ThemesCard: View {
             VStack(spacing: 14) {
                 HStack(spacing: 14) {
                     sample(".standard", theme: .standard, state: .holding(progress: 0.62))
-                    sample(".positive", theme: .positive, state: .dragging(progress: 0.4), labels: SlideToConfirmLabels("Slide to unlock"))
+                    sample(".positive", theme: .positive, state: .success, labels: SlideToConfirmLabels("Slide to unlock", success: "Unlocked"))
                 }
                 HStack(spacing: 14) {
                     sample(".destructive", theme: .destructive, state: .holding(progress: 0.55), labels: SlideToConfirmLabels("Hold to delete", holding: "Keep holding…"))
@@ -316,9 +314,9 @@ private struct CustomizationCard: View {
         Board(scheme: scheme) {
             VStack(alignment: .leading, spacing: 18) {
                 row("compact · 48 pt") {
-                    SlideToConfirm("Slide to approve") {}
+                    SlideToConfirm(labels: SlideToConfirmLabels("Slide to approve", armed: "Release to approve")) {}
                         .slideToConfirmConfiguration(.compact)
-                        .slideToConfirmPreviewState(.dragging(progress: 0.3))
+                        .slideToConfirmPreviewState(.armed())
                 }
                 row("large · 72 pt · SF Symbol knob") {
                     SlideToConfirm("Hold for 3 s to send SOS") {}

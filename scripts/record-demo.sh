@@ -13,10 +13,15 @@ VIDEO="$WORK/demo.mov"
 
 command -v ffmpeg >/dev/null || brew install ffmpeg >/dev/null
 
-xcrun simctl io "$SIMULATOR" recordVideo --codec=h264 --force "$VIDEO" 2>"$WORK/record.log" &
+xcrun simctl io "$SIMULATOR" recordVideo --codec=h264 --force "$VIDEO" >"$WORK/record.log" 2>&1 &
 RECORDER=$!
+# The first frame is written when simctl reports that recording started, not when it launches.
+for _ in $(seq 1 100); do
+    grep -qi "recording started" "$WORK/record.log" && break
+    sleep 0.1
+done
 RECORD_START=$(python3 -c 'import time; print(time.time())')
-sleep 2
+sleep 1
 
 TEST_RUNNER_RECORD_DEMO=1 \
 TEST_RUNNER_RECORD_META="$META" \
@@ -50,13 +55,13 @@ w = min(video_width - x, int(meta["width"] * scale + 2 * pad))
 h = min(video_height - y, int(meta["height"] * scale + 2 * pad))
 w -= w % 2
 h -= h % 2
-offset = max(0, meta["start"] - record_start + 0.5)
+offset = max(0, meta["start"] - record_start + 0.2)
 print(f"{offset:.2f} {w}:{h}:{x}:{y}")
 PY
 )
 
 echo "Trimming from ${OFFSET}s, crop ${CROP}"
-ffmpeg -y -loglevel error -ss "$OFFSET" -t 15.6 -i "$VIDEO" \
-    -vf "crop=${CROP},fps=24,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff:max_colors=200[p];[b][p]paletteuse=dither=sierra2_4a:diff_mode=rectangle" \
+ffmpeg -y -loglevel error -ss "$OFFSET" -t 16.4 -i "$VIDEO" \
+    -vf "crop=${CROP},fps=22,scale=680:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff:max_colors=200[p];[b][p]paletteuse=dither=sierra2_4a:diff_mode=rectangle" \
     -loop 0 "$OUTPUT"
 ls -lh "$OUTPUT"

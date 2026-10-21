@@ -198,6 +198,7 @@ struct DeleteAccountScenario: View {
                             Text("This can't be undone after 30 days").font(.system(size: 16, weight: .semibold)).foregroundStyle(DS.ink)
                             Text("Deleting your account removes everything below for good.").font(.dsCaption).foregroundStyle(DS.ink2)
                         }
+                        Spacer(minLength: 0)
                     }
                     .card(padding: 16, background: DS.dangerSoft)
 
@@ -426,13 +427,15 @@ private struct GarageDoor: View {
                             .opacity(openness)
                     }
                 // Door panels
-                VStack(spacing: 4) {
+                VStack(spacing: 3) {
                     ForEach(0..<5) { _ in
                         RoundedRectangle(cornerRadius: 3)
                             .fill(DS.surface)
                             .overlay(RoundedRectangle(cornerRadius: 3).strokeBorder(DS.line2))
                     }
                 }
+                .padding(3)
+                .background(DS.line, in: RoundedRectangle(cornerRadius: 6))
                 .frame(width: width - 36, height: (opening - 14) * (1 - openness))
                 .padding(.top, 28)
                 .clipped()
