@@ -19,6 +19,7 @@ if not candidates:
     sys.exit("No iPhone simulator available")
 candidates.sort()
 version, score, name, udid = candidates[-1]
+label = ".".join(str(part) for part in version)
 print(udid)
-print(f"Using {name} (iOS {\".\".join(map(str, version))})", file=sys.stderr)
+print("Using " + name + " (iOS " + label + ")", file=sys.stderr)
 '
