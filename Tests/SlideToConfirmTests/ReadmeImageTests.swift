@@ -24,9 +24,9 @@ final class ReadmeImageTests: XCTestCase {
         try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
     }
 
-    private func save<V: View>(_ view: V, as name: String) throws {
+    private func save<V: View>(_ view: V, as name: String, scale: CGFloat = 2) throws {
         let renderer = ImageRenderer(content: view)
-        renderer.scale = 2
+        renderer.scale = scale
         let image = try XCTUnwrap(renderer.cgImage, "Could not render \(name)")
         let url = outputDirectory.appendingPathComponent("\(name).png")
         let destination = try XCTUnwrap(CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil))
@@ -61,6 +61,20 @@ final class ReadmeImageTests: XCTestCase {
     func testRenderHero() throws {
         try save(HeroCard(scheme: .light), as: "hero-light")
         try save(HeroCard(scheme: .dark), as: "hero-dark")
+    }
+
+    /// iPhone Duo screens, rendered at 1.25× to keep the wide boards light.
+    func testRenderIPhoneDuo() throws {
+        for scheme in [ColorScheme.light, .dark] {
+            let suffix = scheme == .dark ? "dark" : "light"
+            try save(DuoBoards.overview(scheme), as: "duo-overview-\(suffix)", scale: 1.25)
+            try save(DuoBoards.closedTrack(scheme), as: "duo-closed-pill-\(suffix)", scale: 1.25)
+            try save(DuoBoards.closedRing(scheme), as: "duo-closed-ring-\(suffix)", scale: 1.25)
+            try save(DuoBoards.open(scheme), as: "duo-open-\(suffix)", scale: 1.25)
+            try save(DuoBoards.portrait(scheme), as: "duo-portrait-\(suffix)", scale: 1.25)
+            try save(DuoBoards.arabic(scheme), as: "duo-arabic-\(suffix)", scale: 1.25)
+            try save(DuoSpecBoard(scheme: scheme), as: "duo-spec-\(suffix)", scale: 1.25)
+        }
     }
 
     func testRenderHoldToConfirm() throws {

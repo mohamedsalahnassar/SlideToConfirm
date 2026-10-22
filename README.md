@@ -49,10 +49,19 @@ HoldToConfirmButton("Hold to send", systemImage: "paperplane.fill") {
 }
 ```
 
+**Built for iPhone Duo.** Closed, open, or open in portrait, both controls have a home in the
+device's bars. [See every posture and placement ↓](#on-iphone-duo)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/duo-overview-dark.png">
+  <img src="docs/images/duo-overview-light.png" alt="iPhone Duo closed with the pill as a pull-down track in the trailing bar, open in landscape with the hold ring above the current tab, and open in portrait with the pill in the bottom bar.">
+</picture>
+
 ## Contents
 
 - [Features](#features)
 - [Screenshots](#screenshots)
+  - [On iPhone Duo](#on-iphone-duo) · [In the demo app](#in-the-demo-app)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Quick start](#quick-start)
@@ -77,6 +86,7 @@ HoldToConfirmButton("Hold to send", systemImage: "paperplane.fill") {
 | --- | --- |
 | 👆 **Slide or hold** | One control, two gestures. Take over a hold mid-way by dragging the knob from where it is. |
 | ⭕️ **Or just a circle** | `HoldToConfirmButton`: ten progress styles, six completion styles, four sizes, five label positions. |
+| 📱 **iPhone Duo ready** | A pull-down track and a 48 pt ring for the trailing vertical bar, closed and open, and a horizontal fit when the inner display turns to portrait. |
 | 🖐️ **Built for reach** | Placements that keep the thumb in its natural zone for either hand, a reach model and a heat-map overlay. |
 | 🎛️ **Every aspect is a setting** | 35+ options for interaction, timing, size, typography, knob, colors, motion and haptics, plus presets. |
 | 🌗 **Themes** | Light and dark palettes, brand and colored surfaces, one-line tints, or fully custom palettes. |
@@ -89,6 +99,72 @@ HoldToConfirmButton("Hold to send", systemImage: "paperplane.fill") {
 | 🌍 **Localized** | Built-in labels in English, Arabic, French, German and Spanish. |
 
 ## Screenshots
+
+### On iPhone Duo
+
+iPhone Duo puts a vertical bar on the trailing hardware edge, with the tab bar at its bottom under
+the thumb. Both controls live in that bar: in its tab zone when the phone is closed or open in
+landscape, and in the bottom bar once the inner display turns to portrait and the bars go
+horizontal.
+
+| Posture | Display | Pill · `SlideToConfirm` | Ring · `HoldToConfirmButton` |
+| --- | --- | --- | --- |
+| **Closed** | Outer, 466 × 678 pt. Bar on the trailing edge. | `.verticalBar`: a 56 × 300 pt pull-down track in the tab zone; 290 pt with the tabs minimized. | `.verticalBar`: a 48 pt ring in the tab zone, above the minimized tabs, or at thumb height. |
+| **Open** | Inner, landscape, 890 × 626 pt. The bar stays on the trailing edge. | The same pull-down track in the bar's tab zone. | The same ring, above the current tab. |
+| **Open, portrait** | Inner, portrait, 626 × 890 pt. The bars go horizontal. | The horizontal track, 440 pt, beside the current tab. | The ring with a trailing label, in one bar item beside the current tab. |
+
+These screens are drawn from the real controls at the display sizes the design estimates, by
+[`ReadmeImageTests`](Tests/SlideToConfirmTests/ReadmeImageTests.swift). There is no iPhone Duo
+simulator to capture them from yet; check the bar's item heights in it as soon as there is.
+
+#### Closed · outer display
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/duo-closed-pill-dark.png">
+  <img src="docs/images/duo-closed-pill-light.png" alt="Three closed iPhone Duo screens with the pill in the trailing bar: holding with the tabs hidden, idle above a minimized tab, and processing.">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/duo-closed-ring-dark.png">
+  <img src="docs/images/duo-closed-ring-light.png" alt="Three closed iPhone Duo screens with the hold ring in the trailing bar: in the tab zone while holding, above a minimized tab, and at thumb height above the full tabs after success.">
+</picture>
+
+#### Open · inner display, landscape
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/duo-open-dark.png">
+  <img src="docs/images/duo-open-light.png" alt="Two open iPhone Duo screens in landscape: the pull-down track in the trailing bar, and the hold ring above the current tab while processing.">
+</picture>
+
+#### Open · inner display, portrait
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/duo-portrait-dark.png">
+  <img src="docs/images/duo-portrait-light.png" width="760" alt="Two open iPhone Duo screens in portrait: the horizontal pill beside the current tab in the bottom bar, and the ring with its label beside the current tab.">
+</picture>
+
+#### Right to left
+
+The bar is hardware: it stays on the right in Arabic, and down is still down, so the vertical track
+and the ring don't mirror. The content mirrors as usual, and so do the horizontal bars in portrait.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/duo-arabic-dark.png">
+  <img src="docs/images/duo-arabic-light.png" alt="iPhone Duo in Arabic: the pill and the ring stay in the right-hand bar when closed, and the horizontal pill mirrors in portrait.">
+</picture>
+
+#### Placement spec
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/duo-spec-dark.png">
+  <img src="docs/images/duo-spec-light.png" width="860" alt="Closed iPhone Duo screens with measurements and the right thumb's reach: the 72 pt bar, the 56 by 300 pt track ending 20 pt above the edge, and the 48 pt ring in a 56 pt item above the current tab.">
+</picture>
+
+The ring by the corner is in reach but makes the thumb curl a little; at thumb height it sits in the
+natural zone, the better spot for long holds. The [iPhone Duo side bar](#iphone-duo-side-bar)
+section covers the trade-offs and the toolbar code.
+
+### In the demo app
 
 The [demo app](#demo-app) shows every scenario, a live playground and a gallery of states.
 
@@ -556,7 +632,8 @@ struct TabZoneConfirm: View {
 }
 ```
 
-The demo app's **Vertical bar** scenario simulates this layout on any iPhone.
+The demo app's **Vertical bar** scenario simulates this layout on any iPhone, and
+[On iPhone Duo](#on-iphone-duo) shows it closed, open and in portrait.
 </details>
 
 If the bar won't give one item 300 pt, a 48 pt [hold ring](#iphone-duo-side-bar) fits an ordinary
@@ -801,14 +878,14 @@ preset is a 48 pt ring that fits an ordinary 56 pt item.
 
 | Position | How | Trade-off |
 | --- | --- | --- |
-| **In the tab zone** | Hide the tabs on the task screen; the ring takes their place at the bottom of the bar. | Exactly under the thumb and unmistakably the primary action. Tabs return after. |
-| **Above minimized tabs** | Minimize the tabs to the current one; the ring sits right above it. | Navigation stays one tap away; the ring is 56 pt higher, still natural reach. |
-| **At thumb height** | Leave the tabs alone; the ring sits just above them, where the thumb wraps the edge. | No change to navigation. Keep it in the lower half of the bar: the upper half is out of reach. |
+| **In the tab zone** | Hide the tabs on the task screen; the ring takes their place at the bottom of the bar. | Where the tabs were, so unmistakably the primary action. That close to the corner the thumb curls a little; fine for a short hold. Tabs return after. |
+| **Above minimized tabs** | Minimize the tabs to the current one; the ring sits right above it. | Navigation stays one tap away, and the ring is 68 pt further from the corner. |
+| **At thumb height** | Leave the tabs alone; the ring sits just above them, where the thumb wraps the edge. | No change to navigation, and the natural zone: the best spot for long holds. Keep it in the lower half of the bar; the upper half is out of reach. |
 
 The bar, and the ring in it, stay on the trailing hardware edge in every language, and the ring
 fills clockwise everywhere, like a clock. Open the phone and turn the inner display to portrait, and
-the bars go horizontal: the same item becomes a bottom toolbar item, where `.compact` with a
-trailing label reads better.
+the bars go horizontal: the same 48 pt ring, with a trailing label, fits one 64 pt bottom-bar item.
+[See it in every posture](#on-iphone-duo).
 
 <details>
 <summary>Toolbar placement sketch (iOS 27.1)</summary>
@@ -829,7 +906,7 @@ struct SideBarConfirm: View {
 
     var body: some View {
         HoldToConfirmButton("Hold to send", systemImage: "paperplane.fill", action: onConfirm)
-            .holdToConfirmConfiguration(edge != nil ? .verticalBar : .compact.with { $0.labelPosition = .trailing })
+            .holdToConfirmConfiguration(.verticalBar.with { $0.labelPosition = edge != nil ? .hidden : .trailing })
     }
 }
 ```
