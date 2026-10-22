@@ -183,7 +183,7 @@ struct HoldHeroStage: View {
             }
             .holdToConfirmConfiguration {
                 $0.completionStyle = .morph
-                $0.successBehavior = .reset(after: 2.2)
+                $0.successBehavior = .reset(after: HeroStage.successResetDelay)
             }
             .onHoldToConfirmStateChange(updateReadout)
             .accessibilityIdentifier("hold.hero")

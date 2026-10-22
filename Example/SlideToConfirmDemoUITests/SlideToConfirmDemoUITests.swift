@@ -14,6 +14,9 @@ final class SlideToConfirmDemoUITests: XCTestCase {
         return app
     }
 
+    /// Keeps success on screen, so a slow runner can't miss the readout before the control resets.
+    private let keepSuccess = ["-resetAfter", "30"]
+
     private func waitForReadout(_ app: XCUIApplication, containing text: String, timeout: TimeInterval = 8) {
         let readout = app.staticTexts["hero.readout"]
         let predicate = NSPredicate(format: "label CONTAINS %@", text)
@@ -23,7 +26,7 @@ final class SlideToConfirmDemoUITests: XCTestCase {
     }
 
     func testHoldingAnywhereConfirms() {
-        let app = launch()
+        let app = launch(keepSuccess)
         let control = app.buttons["hero.control"]
         XCTAssertTrue(control.waitForExistence(timeout: 10))
         control.coordinate(withNormalizedOffset: CGVector(dx: 0.6, dy: 0.5)).press(forDuration: 1.9)
@@ -31,7 +34,7 @@ final class SlideToConfirmDemoUITests: XCTestCase {
     }
 
     func testDraggingTheKnobConfirms() {
-        let app = launch()
+        let app = launch(keepSuccess)
         let control = app.buttons["hero.control"]
         XCTAssertTrue(control.waitForExistence(timeout: 10))
         let knob = control.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5)).withOffset(CGVector(dx: 30, dy: 0))
@@ -56,7 +59,7 @@ final class SlideToConfirmDemoUITests: XCTestCase {
     }
 
     func testDraggingRightToLeftConfirmsInArabic() {
-        let app = launch(["-language", "ar"])
+        let app = launch(["-language", "ar"] + keepSuccess)
         let control = app.buttons["hero.control"]
         XCTAssertTrue(control.waitForExistence(timeout: 10))
         let knob = control.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 0.5)).withOffset(CGVector(dx: -30, dy: 0))
@@ -176,7 +179,7 @@ final class HoldToConfirmUITests: XCTestCase {
     }
 
     func testHoldingConfirms() {
-        let app = launch()
+        let app = launch(["-screen", "record-hold", "-resetAfter", "30"])
         let circle = app.buttons["hold.hero"]
         XCTAssertTrue(circle.waitForExistence(timeout: 10))
         circle.press(forDuration: 1.9)

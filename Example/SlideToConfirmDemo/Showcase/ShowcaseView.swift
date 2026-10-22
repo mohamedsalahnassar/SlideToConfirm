@@ -111,6 +111,7 @@ struct ShowcaseView: View {
 /// The large live control with a readout of what it's doing.
 struct HeroStage: View {
     @State private var readout: Text = Text("Try it: drag the knob, or press and hold anywhere on the pill.")
+    private let resetDelay = HeroStage.successResetDelay
     @State private var lastTrigger: SlideToConfirmTrigger?
     @State private var wasInteracting = false
 
@@ -120,7 +121,7 @@ struct HeroStage: View {
                 lastTrigger = trigger
                 try await Task.sleep(for: .seconds(1.3))
             }
-            .slideToConfirmConfiguration { $0.successBehavior = .reset(after: 2.2) }
+            .slideToConfirmConfiguration { $0.successBehavior = .reset(after: resetDelay) }
             .onSlideToConfirmStateChange(updateReadout)
             .accessibilityIdentifier("hero.control")
 
@@ -181,6 +182,13 @@ struct HeroStage: View {
         default:
             break
         }
+    }
+
+    /// How long the heroes show success before resetting. UI tests that check how a confirmation
+    /// landed lengthen it with `-resetAfter <seconds>`, so the readout can't reset before they read it.
+    static var successResetDelay: Double {
+        let launched = UserDefaults.standard.double(forKey: "resetAfter")
+        return launched > 0 ? launched : 2.2
     }
 
     static func describe(_ trigger: SlideToConfirmTrigger) -> String {
