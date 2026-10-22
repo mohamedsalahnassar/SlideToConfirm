@@ -26,6 +26,9 @@ Every aspect is configurable: hold behavior, direction, timing, size, typography
 motion and haptics. It is accessible out of the box, mirrors for right-to-left languages, scales
 with Dynamic Type and has a UIKit wrapper.
 
+Where a track doesn't fit, ``HoldToConfirmButton`` is the same control as a circle you press and
+hold. See <doc:HoldToConfirm>.
+
 ## Topics
 
 ### Essentials
@@ -33,6 +36,12 @@ with Dynamic Type and has a UIKit wrapper.
 - <doc:GettingStarted>
 - ``SlideToConfirm/SlideToConfirm``
 - ``SlideToConfirmLabels``
+
+### Hold to confirm
+
+- <doc:HoldToConfirm>
+- ``HoldToConfirmButton``
+- ``HoldToConfirmConfiguration``
 
 ### Customizing
 
@@ -74,3 +83,4 @@ with Dynamic Type and has a UIKit wrapper.
 ### UIKit
 
 - ``SlideToConfirmControl``
+- ``HoldToConfirmControl``

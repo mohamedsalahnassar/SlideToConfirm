@@ -91,7 +91,7 @@ struct HoldView: View {
             SectionHeader(
                 eyebrow: "When it's done",
                 title: "Six ways to celebrate",
-                lead: "Success shows only after your action returns. With Reduce Motion on, every style settles straight to the check mark."
+                lead: "Success shows only after your action returns. With Reduce Motion on, every style jumps straight to its final frame."
             )
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 12)], spacing: 12) {
                 ForEach(HoldToConfirmCompletionStyle.allCases) { style in

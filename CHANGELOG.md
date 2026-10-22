@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `HoldToConfirmButton`, a circle you press and hold, built on the same engine as the pill.
+- Ten progress styles: `ring`, `segments`, `fill`, `liquid`, `radial`, `pie`, `pulse`, `glow`,
+  `orbit` and `countdown`.
+- Six completion styles: `checkmark`, `ripple`, `burst`, `bounce`, `morph` and `flip`.
+- Drain or reset on early release, a tap hint, slide-off cancellation and five label positions.
+- `HoldToConfirmConfiguration` with `compact`, `large`, `verticalBar` (a 48 pt ring for side-bar
+  items) and `destructive` presets.
+- `HoldToConfirmPlacement` and `holdToConfirmOverlay(_:margin:content:)` for placements in natural
+  thumb reach, `ThumbReach` to test points against a one-handed reach model, and
+  `ThumbReachOverlay` to see it.
+- `HoldToConfirmControl`, a UIKit wrapper.
+- `SlideToConfirmLabels.tapHint`, localized into every built-in language.
+- Demo app: a Hold tab with style galleries, a composer and a thumb-reach map; a workout scenario;
+  and a hold ring in three positions on the iPhone Duo vertical bar.
+
 ## [1.0.0] - 2026-10-21
 
 ### Added

@@ -24,6 +24,9 @@ SlideToConfirm("Slide or hold to send") { try await send() }
   so vertical tracks never mirror. Content mirrors as usual.
 - **Portrait goes horizontal.** When the bars turn horizontal, use ``SlideToConfirmDirection/trailing``
   capped at 440 pt where the tab bar was.
+- **No room for a track?** If the bar won't give one item 300 pt, a 48 pt
+  ``HoldToConfirmButton`` with ``HoldToConfirmConfiguration/verticalBar`` fits an ordinary item.
+  See <doc:HoldToConfirm>.
 
 ## iPhone Duo
 

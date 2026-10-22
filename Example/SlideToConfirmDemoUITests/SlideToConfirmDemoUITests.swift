@@ -132,7 +132,13 @@ final class NavigationSmokeTests: XCTestCase {
         XCTAssertTrue(tab.waitForExistence(timeout: 10))
         tab.tap()
         XCTAssertTrue(app.buttons["hold.hero"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["hold.progress.liquid"].waitForExistence(timeout: 5))
+
+        // The style galleries are lazy grids: their cells exist once scrolled into view.
+        let liquid = app.buttons["hold.progress.liquid"]
+        for _ in 0..<6 where !liquid.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(liquid.waitForExistence(timeout: 5), "Missing the liquid progress style")
 
         for route in ["hold-compose", "hold-reach"] {
             let link = app.buttons["hold.link.\(route)"]

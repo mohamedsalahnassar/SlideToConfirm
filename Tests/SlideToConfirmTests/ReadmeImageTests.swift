@@ -469,7 +469,11 @@ private struct HoldProgressStylesCard: View {
                     Tile(scheme: scheme) {
                         VStack(spacing: 14) {
                             HoldToConfirmButton(labels: holdLabels, systemImage: "paperplane.fill") {}
-                                .holdToConfirmConfiguration { $0.progressStyle = style; $0.labelPosition = .hidden }
+                                .holdToConfirmConfiguration {
+                                    $0.progressStyle = style
+                                    $0.labelPosition = .hidden
+                                    if style == .countdown { $0.holdDuration = 3 }
+                                }
                                 .holdToConfirmPreviewState(.holding(progress: style == .countdown ? 0.3 : 0.6))
                                 .frame(height: 140)
                             Caption(title: ".\(style.rawValue)", detail: details[style], scheme: scheme)
@@ -679,7 +683,7 @@ private struct HoldDuoCard: View {
             if variant == .thumbHeight {
                 ring
                 Spacer(minLength: 0)
-                    .frame(maxHeight: 70)
+                    .frame(maxHeight: 16)
             }
             if variant == .aboveTabs { ring }
             switch variant {

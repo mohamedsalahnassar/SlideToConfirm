@@ -75,11 +75,12 @@ struct HoldCircleRenderer: View, Animatable {
         let width = diskWidth
         return ZStack {
             Capsule(style: .circular).fill(diskColor)
+            diskContent
             if style.fillsCircle, snapshot.phase == .idle, !showsSuccessFace {
                 Capsule(style: .circular).strokeBorder(palette.trackBorder, lineWidth: 1)
+                // Over the icon, with its own copy of the icon on the fill.
                 fillLayer
             }
-            diskContent
         }
         .frame(width: width, height: diameter)
         .shadow(

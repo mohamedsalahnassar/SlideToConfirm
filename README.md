@@ -39,6 +39,16 @@ SlideToConfirm("Slide or hold to send") {
 }
 ```
 
+Short on room? **[`HoldToConfirmButton`](#hold-to-confirm-the-circle)** is the same engine as a
+circle you press and hold, with ten progress styles, six completion styles, placements chosen for
+thumb reach and a ring that fits a 56 pt side bar.
+
+```swift
+HoldToConfirmButton("Hold to send", systemImage: "paperplane.fill") {
+    try await transfer.send()
+}
+```
+
 ## Contents
 
 - [Features](#features)
@@ -51,6 +61,9 @@ SlideToConfirm("Slide or hold to send") {
   - [Labels](#labels) · [Async actions and outcomes](#async-actions-and-outcomes) · [Hold behaviors](#hold-behaviors) · [Directions and right-to-left](#directions-and-right-to-left)
   - [Themes and colors](#themes-and-colors) · [Size, shape and presets](#size-shape-and-presets) · [Knob icons](#knob-icons) · [Haptics](#haptics)
   - [Observing state](#observing-state) · [Accessibility](#accessibility) · [Placement](#placement) · [Previews and snapshot tests](#previews-and-snapshot-tests) · [UIKit](#uikit)
+- [Hold to confirm: the circle](#hold-to-confirm-the-circle)
+  - [Progress styles](#progress-styles) · [Completion styles](#completion-styles) · [States, sizes and labels](#states-sizes-and-labels)
+  - [Placement and thumb reach](#placement-and-thumb-reach) · [iPhone Duo side bar](#iphone-duo-side-bar) · [UIKit](#uikit-1) · [Circle configuration reference](#circle-configuration-reference)
 - [Configuration reference](#configuration-reference)
 - [All states](#all-states)
 - [Demo app](#demo-app)
@@ -63,14 +76,16 @@ SlideToConfirm("Slide or hold to send") {
 |  |  |
 | --- | --- |
 | 👆 **Slide or hold** | One control, two gestures. Take over a hold mid-way by dragging the knob from where it is. |
+| ⭕️ **Or just a circle** | `HoldToConfirmButton`: ten progress styles, six completion styles, four sizes, five label positions. |
+| 🖐️ **Built for reach** | Placements that keep the thumb in its natural zone for either hand, a reach model and a heat-map overlay. |
 | 🎛️ **Every aspect is a setting** | 35+ options for interaction, timing, size, typography, knob, colors, motion and haptics, plus presets. |
 | 🌗 **Themes** | Light and dark palettes, brand and colored surfaces, one-line tints, or fully custom palettes. |
 | ⏳ **Async by design** | Processing while your action runs, success only when it returns, failure with a reason when it throws. No double sends. |
-| ↔️ **Any direction** | Leading-to-trailing (mirrors in Arabic and Hebrew), down for vertical bars, up for doors and lifts. |
+| ↔️ **Any direction** | Leading-to-trailing (mirrors in Arabic and Hebrew), down for vertical bars, up for doors and lifts. A 48 pt ring for side-bar items. |
 | ♿️ **Accessible** | A button for VoiceOver, Switch Control and Voice Control, an optional confirmation alert, keyboard support, Dynamic Type and Reduce Motion. |
 | 📳 **Haptics** | A tick when armed, rising ticks while holding, success and error notifications. Swap in your own engine. |
-| 🧩 **SwiftUI and UIKit** | A native SwiftUI view and a `UIControl` with target-action and Auto Layout sizing. |
-| 🧪 **Tested** | A pure, clock-free interaction engine with 48 unit tests on Linux and macOS, rendering tests, and UI tests that drive real touches. |
+| 🧩 **SwiftUI and UIKit** | Native SwiftUI views and `UIControl`s with target-action and Auto Layout sizing. |
+| 🧪 **Tested** | A pure, clock-free interaction engine with 65 unit tests on Linux and macOS, rendering tests, and UI tests that drive real touches. |
 | 🌍 **Localized** | Built-in labels in English, Arabic, French, German and Spanish. |
 
 ## Screenshots
@@ -78,6 +93,12 @@ SlideToConfirm("Slide or hold to send") {
 The [demo app](#demo-app) shows every scenario, a live playground and a gallery of states.
 
 <table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/hold-light.png" width="200" alt="Hold tab"><br><sub><b>The circle</b></sub></td>
+    <td align="center"><img src="docs/screenshots/hold-reach-light.png" width="200" alt="Thumb reach map"><br><sub><b>Thumb reach</b></sub></td>
+    <td align="center"><img src="docs/screenshots/hold-duo-zone-light.png" width="200" alt="Hold ring in the vertical bar"><br><sub><b>Side-bar ring</b></sub></td>
+    <td align="center"><img src="docs/screenshots/workout-dark.png" width="200" alt="End a workout"><br><sub><b>Countdown hold</b></sub></td>
+  </tr>
   <tr>
     <td align="center"><img src="docs/screenshots/showcase-light.png" width="200" alt="Showcase"><br><sub><b>Showcase</b></sub></td>
     <td align="center"><img src="docs/screenshots/send-light.png" width="200" alt="Send money"><br><sub><b>Send money</b></sub></td>
@@ -112,7 +133,13 @@ The [demo app](#demo-app) shows every scenario, a live playground and a gallery 
     <td align="center"><img src="docs/screenshots/states-light.png" width="200" alt="States, light"><br><sub>States, light</sub></td>
     <td align="center"><img src="docs/screenshots/tabzone-arabic.png" width="200" alt="Vertical bar in Arabic"><br><sub>Vertical bar, Arabic</sub></td>
     <td align="center"><img src="docs/screenshots/uikit-light.png" width="200" alt="UIKit"><br><sub>UIKit</sub></td>
-    <td></td>
+    <td align="center"><img src="docs/screenshots/hold-dark.png" width="200" alt="Hold tab, dark"><br><sub>The circle, dark</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/hold-compose-light.png" width="200" alt="Circle composer"><br><sub>Circle composer</sub></td>
+    <td align="center"><img src="docs/screenshots/hold-reach-left-dark.png" width="200" alt="Thumb reach, left hand"><br><sub>Reach, left hand, edge</sub></td>
+    <td align="center"><img src="docs/screenshots/hold-duo-above-dark.png" width="200" alt="Ring above minimized tabs"><br><sub>Ring above tabs</sub></td>
+    <td align="center"><img src="docs/screenshots/hold-duo-thumb-arabic.png" width="200" alt="Ring at thumb height in Arabic"><br><sub>Ring at thumb height, Arabic</sub></td>
   </tr>
 </table>
 </details>
@@ -532,6 +559,9 @@ struct TabZoneConfirm: View {
 The demo app's **Vertical bar** scenario simulates this layout on any iPhone.
 </details>
 
+If the bar won't give one item 300 pt, a 48 pt [hold ring](#iphone-duo-side-bar) fits an ordinary
+item and keeps the idea.
+
 > **Inside a `ScrollView`?** The control claims touches that start on it, like a slider does, so a
 > scroll that starts on the control won't scroll. Pin it outside the scroll view where you can.
 
@@ -588,6 +618,280 @@ control.reset()                             // back to idle, for example after s
 
 It also exposes `labels`, `haptics`, `previewState`, `confirmationState`, `lastTrigger` and honors
 `isEnabled`.
+
+## Hold to confirm: the circle
+
+`HoldToConfirmButton` is the compact sibling of the pill: a circle you press and hold. It runs on
+the same engine, so it shares the haptics, labels, themes, async outcomes and accessibility, and it
+fits where a 300 pt track can't: a floating corner, a card, a toolbar or a 56 pt side bar.
+
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hold-demo-dark.gif">
+  <img src="docs/images/hold-demo-light.gif" width="520" alt="A tap shows the “Press and hold” hint; a short hold drains back; a full hold fills the ring, shows processing, then morphs into a capsule that reads Sent.">
+</picture>
+</p>
+
+```swift
+HoldToConfirmButton("Hold to send", systemImage: "paperplane.fill") {
+    try await transfer.send()
+}
+```
+
+| Gesture | What happens |
+| --- | --- |
+| **Press and hold** | The circle presses in under the finger, and after 100 ms the progress style starts. At the end it commits with the confirm haptic, shows processing while your action runs, then success. |
+| **Let go early** | Progress drains back three times faster than it filled. Press again before it empties and it picks up from there. Prefer a clean restart? `releaseBehavior = .reset`. |
+| **Slide off** | Moving the finger more than 24 pt outside the circle cancels, like any button. |
+| **Tap** | The circle pulses and the label briefly reads **Press and hold** (`SlideToConfirmLabels.tapHint`), so people learn the gesture. |
+| **VoiceOver, Switch Control, keyboard** | It's a button named after its label. Activation fills the ring, then runs the action; add `.slideToConfirmAccessibilityAlert(_:)` for a second step. |
+
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hold-hero-dark.png">
+  <img src="docs/images/hold-hero-light.png" width="720" alt="The circle idle, holding at 62%, processing and succeeded.">
+</picture>
+</p>
+
+### Progress styles
+
+Ten ways to show that a hold is under way and how long is left. They all show the same progress;
+they differ in what moves.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hold-progress-dark.png">
+  <img src="docs/images/hold-progress-light.png" alt="Ring, segments, fill, liquid, radial, pie, pulse, glow, orbit and countdown, each holding at 60%.">
+</picture>
+
+| Style | What moves | Reach for it when |
+| --- | --- | --- |
+| `.ring` | A ring fills clockwise around the circle. | You want the clearest countdown. The default. |
+| `.segments` | Ticks light up one by one, each with a haptic tick. | The hold is long, or people may not be looking. |
+| `.fill` | The circle fills from the bottom; the icon turns white exactly where the fill reaches. | The action is destructive or the screen is calm. |
+| `.liquid` | Like `.fill`, with a moving wave on the surface. | The moment deserves some play. |
+| `.radial` | A disc grows from the center outward. | The circle is small, such as in a toolbar. |
+| `.pie` | A sector sweeps like a clock hand. | The action is about time. |
+| `.pulse` | Ripples radiate, faster toward the end, over a thin ring. | The action is urgent, such as SOS. |
+| `.glow` | A halo grows brighter and wider. | You want the least motion; time left is implied. |
+| `.orbit` | A comet orbits the circle, its tail growing. | Media and expressive brands. |
+| `.countdown` | The seconds left count down inside a ring. | Long, deliberate holds of 3 s or more. |
+
+Every style also gets the shared feedback: the circle presses in to 94% under the finger, rising
+haptic ticks mark the way (one per segment with `.segments`), and a failure shakes the circle red.
+
+### Completion styles
+
+Success shows only after your action returns. Pick how it lands:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hold-completion-dark.png">
+  <img src="docs/images/hold-completion-light.png" alt="Check mark, ripple, burst, bounce, morph into a Sent capsule, and flip, each caught mid-animation.">
+</picture>
+
+| Style | What happens |
+| --- | --- |
+| `.checkmark` | The circle turns green and a check mark draws itself in. The default. |
+| `.ripple` | A shock wave rings out from the circle. |
+| `.burst` | Particles burst outward and fade. |
+| `.bounce` | The circle pops with an overshoot. |
+| `.morph` | The circle stretches into a capsule that spells out the success label. |
+| `.flip` | The circle flips over, from the processing face to the success face. |
+
+With Reduce Motion on, every style jumps straight to its final frame, without movement.
+
+```swift
+HoldToConfirmButton("Hold to send", systemImage: "paperplane.fill") { try await send() }
+    .holdToConfirmProgressStyle(.liquid)
+    .holdToConfirmCompletionStyle(.burst)
+```
+
+### States, sizes and labels
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hold-states-dark.png">
+  <img src="docs/images/hold-states-light.png" alt="The compact circle idle, holding, processing, succeeded, failed and disabled.">
+</picture>
+
+| Preset | Circle | With ring | Use it for |
+| --- | --- | --- | --- |
+| `.default` | 88 pt | 110 pt | A floating action or a card. Label below. |
+| `.compact` | 56 pt | 72 pt | Dense rows and toolbars. |
+| `.large` | 128 pt | 158 pt | A screen whose one job is this confirmation. |
+| `.verticalBar` | 36 pt | 48 pt | An ordinary item in a 56 pt vertical bar. Label hidden. |
+| `.destructive` | 88 pt | 110 pt | Red, filling from the bottom, two seconds long. |
+
+The label sits `.below`, `.above`, `.leading` or `.trailing` the circle, or is `.hidden` (it remains
+the accessibility label). It follows the phase: **Keep holding…** while holding, **Press and hold**
+after a tap, then processing, success or the failure reason.
+
+```swift
+HoldToConfirmButton(labels: SlideToConfirmLabels(
+    "Hold to end",
+    holding: "Keep holding…",
+    processing: "Saving…",
+    success: "Saved",
+    tapHint: "Hold to end · tap Pause"
+), systemImage: "stop.fill") {
+    try await workout.end()
+}
+.holdToConfirmConfiguration(.large.with {
+    $0.holdDuration = 3
+    $0.progressStyle = .countdown
+    $0.completionStyle = .morph
+    $0.theme = .tinted(.red)
+})
+```
+
+### Placement and thumb reach
+
+A hold needs a resting thumb: people can't keep a finger down for a second while stretching for the
+top of the screen. `ThumbReach` models where the thumb reaches on a phone held in one hand, from the
+base of the thumb near the bottom corner, and every placement keeps the circle in the **natural**
+zone of the hand it names.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hold-placements-dark.png">
+  <img src="docs/images/hold-placements-light.png" alt="Phone screens for the right and left hand with a green, yellow and red reach heat map, and the four placements marked on each.">
+</picture>
+
+| Placement | Where | Reach for it when |
+| --- | --- | --- |
+| `.bottomCenter` | Centered, above the bottom edge. | Either hand may hold the phone, and people look here first for the primary action. The safest default. |
+| `.bottomCorner(hand)` | The bottom corner on the side of the hand. | A floating action button. Keep the margin; the very corner makes the thumb curl. |
+| `.thumbArc(hand)` | About two thirds down, in from the edge. | The hold is long. This is where the thumb rests, so it's the most comfortable spot to keep it down. |
+| `.edge(hand)` | Against the edge, a little below the middle. | The bottom belongs to a tab bar, or you want a side-bar feel. |
+
+```swift
+CheckoutScreen()
+    .holdToConfirmOverlay(.thumbArc(.right)) {
+        HoldToConfirmButton("Hold to pay", systemImage: "creditcard.fill") { try await pay() }
+    }
+```
+
+- **Placements name a hand, not leading or trailing.** Reach is physical: in Arabic the right thumb
+  still rests on the right, so placements don't mirror. Offer a handedness setting and use
+  `placement.mirrored` for left-handed people.
+- **Inline works too.** In a card or list row use `.compact` with a `.trailing` label; in a toolbar,
+  `.compact` or `.verticalBar` with the label hidden.
+- **Avoid** the top half of the screen and the top corners (hard to reach one-handed), and anywhere
+  a scroll starts: the circle claims touches that start on it.
+- **Check your own layouts** with the heat map, then take it out:
+
+```swift
+ReviewScreen()
+    .overlay { ThumbReachOverlay(hand: .right).ignoresSafeArea() }
+
+ThumbReach.zone(at: buttonCenter, in: screenSize, hand: .left)   // .natural, .stretch or .hard
+```
+
+On iPad and Mac reach matters less: place the circle next to what it confirms.
+
+### iPhone Duo side bar
+
+Closed, iPhone Duo puts a vertical bar on the trailing hardware edge, with the tab bar at its
+bottom under the thumb. The pill can take the tab zone as a 300 pt pull-down track (see
+[Placement](#placement)), but Apple documents a fixed width and flexible item height for vertical
+bars, not how tall one custom item may grow. The circle needs no extra height: the `.verticalBar`
+preset is a 48 pt ring that fits an ordinary 56 pt item.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hold-duo-dark.png">
+  <img src="docs/images/hold-duo-light.png" alt="Three outer-display mock-ups with the hold ring in the trailing bar: in the tab zone, above a minimized tab, and at thumb height above the full tabs.">
+</picture>
+
+| Position | How | Trade-off |
+| --- | --- | --- |
+| **In the tab zone** | Hide the tabs on the task screen; the ring takes their place at the bottom of the bar. | Exactly under the thumb and unmistakably the primary action. Tabs return after. |
+| **Above minimized tabs** | Minimize the tabs to the current one; the ring sits right above it. | Navigation stays one tap away; the ring is 56 pt higher, still natural reach. |
+| **At thumb height** | Leave the tabs alone; the ring sits just above them, where the thumb wraps the edge. | No change to navigation. Keep it in the lower half of the bar: the upper half is out of reach. |
+
+The bar, and the ring in it, stay on the trailing hardware edge in every language, and the ring
+fills clockwise everywhere, like a clock. Open the phone and turn the inner display to portrait, and
+the bars go horizontal: the same item becomes a bottom toolbar item, where `.compact` with a
+trailing label reads better.
+
+<details>
+<summary>Toolbar placement sketch (iOS 27.1)</summary>
+
+These APIs are new in iOS 27.1; confirm exact signatures in Xcode.
+
+```swift
+ReviewTransfer()
+    .toolbarVisibility(.hidden, for: .tabBar)       // "In the tab zone"; omit for "At thumb height"
+    .toolbar {
+        ToolbarItem(placement: .bottomBar) { SideBarConfirm(onConfirm: send) }
+            .axisBehavior(.verticalPreferred)
+    }
+
+struct SideBarConfirm: View {
+    let onConfirm: () async throws -> Void
+    @Environment(\.toolbarVerticalEdge) private var edge   // nil = horizontal bars
+
+    var body: some View {
+        HoldToConfirmButton("Hold to send", systemImage: "paperplane.fill", action: onConfirm)
+            .holdToConfirmConfiguration(edge != nil ? .verticalBar : .compact.with { $0.labelPosition = .trailing })
+    }
+}
+```
+</details>
+
+The demo app's **Vertical bar · iPhone Duo** scenario simulates all three positions on any iPhone,
+in English and Arabic.
+
+### UIKit
+
+```swift
+let control = HoldToConfirmControl(title: "Hold to flag", systemImage: "flag.fill", configuration: .compact)
+control.action = { trigger in
+    try await reports.flag(item)
+}
+control.addAction(UIAction { _ in Analytics.log("flag_committed") }, for: .primaryActionTriggered)
+view.addSubview(control)   // sizes itself from its intrinsic content size
+```
+
+Like `SlideToConfirmControl`, it exposes `labels`, `configuration`, `haptics`, `previewState`,
+`confirmationState`, `confirmationStateDidChange`, `lastTrigger`, `reset()` and honors `isEnabled`.
+
+### Circle configuration reference
+
+Set any of these with `.holdToConfirmConfiguration { $0.… = … }`.
+
+| Property | Default | Description |
+| --- | --- | --- |
+| `holdDuration` | `1.2` s | How long the hold takes. |
+| `holdDelay` | `0.1` s | How long a finger rests before the hold starts. |
+| `releaseBehavior` | `.drain` | `.drain` back on early release, or `.reset` to zero. |
+| `drainSpeed` | `3` | How many times faster it drains than it filled. |
+| `outsideTolerance` | `24` pt | How far outside the circle a finger may stray before the hold cancels. |
+| `hintsOnTap` | `true` | A tap pulses the circle and shows the tap hint. |
+| `activationDelay` | `0.36` s | Pause between filling and the action, for keyboard and assistive activation. |
+| `successBehavior` | `.remain` | `.remain` or `.reset(after:)`. |
+| `failureDisplayDuration` | `2` s | How long failure shows before idle. |
+| `shakesOnFailure` | `true` | Shake when the action fails (skipped with Reduce Motion). |
+| `diameter` | `88` pt | The circle's diameter. |
+| `ringWidth` · `ringGap` | `6` · `5` pt | The ring's line width and its gap from the circle. |
+| `segmentCount` | `12` | Ticks for `.segments`. |
+| `pressedScale` | `0.94` | How much the circle shrinks under the finger. |
+| `iconScale` | `0.34` | The icon's size relative to the diameter. |
+| `labelPosition` | `.below` | `.below`, `.above`, `.leading`, `.trailing` or `.hidden`. |
+| `labelFont` · `labelSize` · `labelWeight` | `nil` · `15` · `.semibold` | The label's font. |
+| `labelSpacing` | `12` pt | Gap between the circle and the label. |
+| `maximumDynamicTypeSize` | `.accessibility3` | Largest text size the label follows. |
+| `progressStyle` | `.ring` | One of the ten progress styles. |
+| `completionStyle` | `.checkmark` | One of the six completion styles. |
+| `icons` | `hand.tap.fill` | Icons for idle, processing, success and failure. `systemImage:` sets the idle one. |
+| `theme` | `.standard` | The same themes as the pill. |
+| `showsShadow` | `true` | Shadow under the circle. |
+| `disabledOpacity` · `animations` · `holdHapticMarks` | `0.42` · `.default` · `3` | As for the pill. |
+
+| Modifier | Purpose |
+| --- | --- |
+| `.holdToConfirmConfiguration(_:)` · `.holdToConfirmConfiguration { }` | Set or adjust the configuration. |
+| `.holdToConfirmProgressStyle(_:)` · `.holdToConfirmCompletionStyle(_:)` · `.holdToConfirmTheme(_:)` | Shortcuts. |
+| `.holdToConfirmOverlay(_:margin:content:)` | Float a circle at a placement. |
+| `.onHoldToConfirmStateChange { state in … }` | Observe phase, interaction and progress. |
+| `.holdToConfirmPreviewState(_:)` | Freeze `.idle`, `.holding(progress:)`, `.processing`, `.success`, `.failure(message:)` or `.disabled`. |
+| `.slideToConfirmHaptics(_:)` · `.slideToConfirmAccessibilityAlert(…)` | Shared with the pill. |
 
 ## Configuration reference
 
@@ -692,16 +996,19 @@ It uses the package from this repository, so your changes show up immediately.
 | Tab | What's inside |
 | --- | --- |
 | **Showcase** | The hero control with a live readout of what it's doing, how it works, and Combined, Fill and Glide side by side. |
-| **Scenarios** | Eight complete screens: send money (with failure and retry, Arabic and right-to-left), unlock, checkout on a brand surface, delete account, emergency SOS, a garage door driven by `onSlideToConfirmStateChange`, a vertical bar layout, and a UIKit screen. |
+| **Hold** | The circle: a live hero with a readout, every progress and completion style to try, a composer that writes the code, a thumb-reach map with every placement for either hand, and the iPhone Duo side-bar ring. |
+| **Scenarios** | Nine complete screens: send money (with failure and retry, Arabic and right-to-left), unlock, checkout on a brand surface, delete account, emergency SOS, a garage door driven by `onSlideToConfirmStateChange`, ending a workout with a countdown hold, a vertical bar with a track or a hold ring, and a UIKit screen with both controls. |
 | **Playground** | Every setting as a live control, on light, dark and brand surfaces, with the Swift code for your configuration ready to copy. |
-| **States** | Every state frozen with preview states, vertical tracks and right-to-left. |
+| **States** | Every state of the pill and the circle frozen with preview states, vertical tracks and right-to-left. |
 
 Launch arguments open a screen directly, which the UI tests and screenshot workflow use:
 
 ```sh
 xcrun simctl launch booted io.github.mohamedsalahnassar.SlideToConfirmDemo \
   -screen send -appearance dark -language ar
-# -screen: showcase, scenarios, playground, states, send, unlock, checkout, delete, sos, garage, tabzone, uikit, record
+# -screen: showcase, hold, scenarios, playground, states, send, unlock, checkout, delete, sos, garage,
+#          workout, tabzone, uikit, hold-compose, hold-reach, hold-duo, record, record-hold
+# tabzone: -step review -control ring -ring zone|above|thumb · hold-reach: -hand left -placement edge
 ```
 
 ## Architecture and testing
@@ -712,8 +1019,9 @@ Sources/SlideToConfirm
 ├── Model/           Public state, phases, triggers, hold behaviors, preview states.
 ├── Configuration/   Configuration, themes and palettes, labels, icons, haptics.
 ├── Views/           The SwiftUI control, the track renderer, knob icons and effects.
+├── Hold/            HoldToConfirmButton, its renderer and configuration, placements, ThumbReach.
 ├── Support/         Environment keys and modifiers.
-└── UIKit/           SlideToConfirmControl.
+└── UIKit/           SlideToConfirmControl and HoldToConfirmControl.
 ```
 
 - **The engine never reads the clock.** Touches arrive with timestamps; the view asks for a snapshot
@@ -721,6 +1029,9 @@ Sources/SlideToConfirm
   timing path is tested to the millisecond, on Linux and macOS.
 - **One renderer, every direction.** The track is laid out horizontally from the leading edge,
   mirrored by geometry (never by flipping text) for right-to-left, and rotated for vertical tracks.
+- **One engine, two shapes.** The circle drives the same engine as a hold-only track with no knob,
+  reporting a finger outside the circle as a cancelling move. Completion effects are pure functions
+  of one animatable value, so every frame can be rendered deterministically.
 - **No double sends.** The engine locks from commit until the action reports back, ignoring every
   touch, key and assistive activation in between.
 
@@ -728,8 +1039,10 @@ Sources/SlideToConfirm
 | --- | --- | --- |
 | `ConfirmEngineTests` | Linux, macOS, iOS | Drag, hold, take-over, nudge, fill drain, glide, outcomes, activation, disabling, settings |
 | `TrackLayoutTests` | Linux, macOS, iOS | Knob and fill geometry, label regions and the combined-hold hand-over |
-| `RenderingTests` | macOS, iOS | Every state × behavior × direction renders; sizing; themes; right-to-left; Dynamic Type |
-| `SlideToConfirmDemoUITests` | iOS | Real touches: hold, drag, early release, right-to-left drag, and every demo screen |
+| `HoldEngineTests` | Linux, macOS, iOS | The circle's hold, drain and resume, reset, slide-off, tap hint, segment haptics, activation, retry |
+| `ThumbReachTests` | Linux, macOS, iOS | The reach zones for either hand |
+| `RenderingTests` · `HoldRenderingTests` | macOS, iOS | Every state × behavior × direction, and every progress, completion, label position and preset, renders; sizing; themes; right-to-left; placements stay in natural reach |
+| `SlideToConfirmDemoUITests` · `HoldToConfirmUITests` | iOS | Real touches: hold, drag, early release, right-to-left drag, tap hint, slide-off, the side-bar ring, and every demo screen |
 
 ```sh
 swift test

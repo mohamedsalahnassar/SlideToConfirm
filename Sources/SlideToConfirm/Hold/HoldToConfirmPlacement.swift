@@ -150,6 +150,8 @@ public struct ThumbReachOverlay: View {
             }
             .frame(width: size.width, height: size.height)
             .clipped()
+            // Composite first, so each zone shows its own color rather than blending with the ones below.
+            .compositingGroup()
             .opacity(opacity)
         }
         .environment(\.layoutDirection, .leftToRight)
