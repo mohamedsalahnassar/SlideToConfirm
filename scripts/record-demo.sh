@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Records the hold → drag → early-release demo with a UI test and turns it into a GIF.
-# Usage: scripts/record-demo.sh <simulator-udid> <derived-data-path> <output.gif> [light|dark]
+# Records a demo with a UI test and turns it into a GIF: by default the pill's hold → drag →
+# early-release sequence, or the circle's with testRecordHoldDemo.
+# Usage: scripts/record-demo.sh <simulator-udid> <derived-data-path> <output.gif> [light|dark] [test]
 set -euo pipefail
 
 SIMULATOR="$1"
 DERIVED_DATA="$2"
 OUTPUT="$3"
 APPEARANCE="${4:-light}"
+TEST="${5:-testRecordDemo}"
 WORK="$(mktemp -d)"
 META="$WORK/meta.json"
 VIDEO="$WORK/demo.mov"
@@ -31,7 +33,7 @@ xcodebuild test-without-building \
     -scheme SlideToConfirmDemo \
     -destination "id=$SIMULATOR" \
     -derivedDataPath "$DERIVED_DATA" \
-    -only-testing:SlideToConfirmDemoUITests/DemoRecordingTests/testRecordDemo \
+    -only-testing:"SlideToConfirmDemoUITests/DemoRecordingTests/$TEST" \
     > "$WORK/test.log" 2>&1 || { tail -50 "$WORK/test.log"; kill -INT "$RECORDER"; exit 1; }
 
 sleep 1

@@ -4,6 +4,7 @@ import SwiftUI
 /// App-wide settings and navigation. Launch arguments preselect a screen for UI tests and screenshots:
 ///
 ///     -screen send -appearance dark -language ar
+///     -screen hold-reach -hand left
 @Observable
 final class AppModel {
     enum Appearance: String, CaseIterable, Identifiable {
@@ -29,15 +30,22 @@ final class AppModel {
     }
 
     enum Tab: String, Hashable {
-        case showcase, scenarios, playground, states
+        case showcase, hold, scenarios, playground, states
+    }
+
+    /// A bare stage for recording a README animation.
+    enum RecordingStage: String {
+        case slide = "record"
+        case hold = "record-hold"
     }
 
     var appearance: Appearance
     var language: DemoLanguage
     var tab: Tab
     var scenarioPath: [Scenario]
-    /// Shows a bare stage with one control, for recording the README animation.
-    let isRecordingStage: Bool
+    var holdPath: [HoldRoute]
+    /// Shows a bare stage with one control, for recording a README animation.
+    let recordingStage: RecordingStage?
     /// Preselected surface for the States tab.
     let initialSurface: StageSurface
 
@@ -47,13 +55,17 @@ final class AppModel {
         initialSurface = defaults.string(forKey: "surface").flatMap(StageSurface.init(rawValue:)) ?? .light
 
         let screen = defaults.string(forKey: "screen") ?? ""
-        isRecordingStage = screen == "record"
+        recordingStage = RecordingStage(rawValue: screen)
+        scenarioPath = []
+        holdPath = []
         if let scenario = Scenario(rawValue: screen) {
             tab = .scenarios
             scenarioPath = [scenario]
+        } else if let route = HoldRoute(rawValue: screen) {
+            tab = .hold
+            holdPath = [route]
         } else {
             tab = Tab(rawValue: screen) ?? .showcase
-            scenarioPath = []
         }
     }
 }

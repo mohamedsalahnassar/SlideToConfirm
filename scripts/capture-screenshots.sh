@@ -42,5 +42,14 @@ shot garage-light      -screen garage     -appearance light
 shot tabzone-light     -screen tabzone    -appearance light -step review
 shot tabzone-arabic    -screen tabzone    -appearance dark  -step review -language ar -tabs minimized
 shot uikit-light       -screen uikit      -appearance light
+shot workout-dark      -screen workout    -appearance dark
+shot hold-light        -screen hold       -appearance light
+shot hold-dark         -screen hold       -appearance dark
+shot hold-compose-light -screen hold-compose -appearance light
+shot hold-reach-light  -screen hold-reach -appearance light
+shot hold-reach-left-dark -screen hold-reach -appearance dark -hand left -placement edge
+shot hold-duo-zone-light  -screen tabzone -appearance light -step review -control ring -ring zone
+shot hold-duo-above-dark  -screen tabzone -appearance dark  -step review -control ring -ring above
+shot hold-duo-thumb-arabic -screen tabzone -appearance light -step review -control ring -ring thumb -language ar
 
 xcrun simctl terminate "$SIMULATOR" "$BUNDLE_ID" >/dev/null 2>&1 || true

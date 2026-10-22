@@ -1,15 +1,19 @@
 import SlideToConfirm
 import SwiftUI
 
-/// The control takes the tab bar's place as a pull-down track on a trailing vertical bar, as on
-/// iPhone Duo's outer display. On a task screen the tabs step aside and the control grows out of
-/// the space they leave. The bar stays on the trailing hardware edge in every language, so the
-/// control never mirrors.
+/// The control on a trailing vertical bar, as on iPhone Duo's outer display. On a task screen
+/// either the pill takes the tab bar's place as a pull-down track, or a 48 pt hold ring sits in an
+/// ordinary bar item: in the tab zone, above the minimized tabs, or at thumb height. The bar stays
+/// on the trailing hardware edge in every language, so the control never mirrors.
+///
+/// Launch with `-screen tabzone -control ring -ring thumb -step review` to preselect.
 struct TabZoneScenario: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var step: Step = Step(rawValue: UserDefaults.standard.string(forKey: "step") ?? "") ?? .form
     @State private var tabsOnReview: TabsOnReview = TabsOnReview(rawValue: UserDefaults.standard.string(forKey: "tabs") ?? "") ?? .hidden
+    @State private var control: Control
+    @State private var ringPosition: RingPosition = RingPosition(rawValue: UserDefaults.standard.string(forKey: "ring") ?? "") ?? .tabZone
     @State private var showsAllTabs = false
 
     enum Step: String { case form, review, sent }
@@ -17,6 +21,31 @@ struct TabZoneScenario: View {
     enum TabsOnReview: String, CaseIterable, Identifiable {
         case hidden, minimized
         var id: String { rawValue }
+    }
+
+    /// The confirm control on the bar.
+    enum Control: String, CaseIterable, Identifiable {
+        /// A 300 pt pull-down track in the tab zone.
+        case track
+        /// A 48 pt hold ring in an ordinary bar item.
+        case ring
+        var id: String { rawValue }
+    }
+
+    /// Where the hold ring sits on the bar.
+    enum RingPosition: String, CaseIterable, Identifiable {
+        /// In the tab zone, under the thumb; the tabs step aside.
+        case tabZone = "zone"
+        /// Above the tabs, minimized to the current one.
+        case aboveTabs = "above"
+        /// Mid-bar, where the thumb wraps the edge; the tabs stay.
+        case thumb
+        var id: String { rawValue }
+    }
+
+    init(control: Control? = nil) {
+        let launched = UserDefaults.standard.string(forKey: "control").flatMap(Control.init(rawValue:))
+        _control = State(initialValue: control ?? launched ?? .track)
     }
 
     private let barWidth: CGFloat = 72
@@ -38,6 +67,7 @@ struct TabZoneScenario: View {
         .toolbar(.hidden, for: .tabBar)
         .animation(.spring(response: 0.5, dampingFraction: 0.82), value: step)
         .animation(.spring(response: 0.45, dampingFraction: 0.82), value: showsAllTabs)
+        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: ringPosition)
     }
 
     // MARK: Content
@@ -87,7 +117,7 @@ struct TabZoneScenario: View {
                 .padding(.top, 16)
                 Spacer(minLength: 16)
                 HStack(spacing: 10) {
-                    Text(copy.hint).font(.system(size: 15, weight: .semibold))
+                    Text(control == .ring ? copy.ringHint : copy.hint).font(.system(size: 15, weight: .semibold))
                     Spacer(minLength: 0)
                     Image(systemName: "arrow.right").font(.system(size: 17, weight: .bold))
                         .environment(\.layoutDirection, .leftToRight)
@@ -140,12 +170,30 @@ struct TabZoneScenario: View {
     private func options(_ copy: DuoCopy) -> some View {
         @Bindable var model = model
         return VStack(alignment: .leading, spacing: 10) {
-            Text(copy.tabsOnReview).font(.system(size: 13, weight: .semibold)).foregroundStyle(DS.ink2)
-            Picker(copy.tabsOnReview, selection: $tabsOnReview) {
-                Text(copy.hidden).tag(TabsOnReview.hidden)
-                Text(copy.minimized).tag(TabsOnReview.minimized)
+            Text(copy.control).font(.system(size: 13, weight: .semibold)).foregroundStyle(DS.ink2)
+            Picker(copy.control, selection: $control) {
+                Text(copy.track).tag(Control.track)
+                Text(copy.ring).tag(Control.ring)
             }
             .pickerStyle(.segmented)
+            .accessibilityIdentifier("duo.controlPicker")
+            if control == .track {
+                Text(copy.tabsOnReview).font(.system(size: 13, weight: .semibold)).foregroundStyle(DS.ink2)
+                Picker(copy.tabsOnReview, selection: $tabsOnReview) {
+                    Text(copy.hidden).tag(TabsOnReview.hidden)
+                    Text(copy.minimized).tag(TabsOnReview.minimized)
+                }
+                .pickerStyle(.segmented)
+            } else {
+                Text(copy.ringPosition).font(.system(size: 13, weight: .semibold)).foregroundStyle(DS.ink2)
+                Picker(copy.ringPosition, selection: $ringPosition) {
+                    Text(copy.inZone).tag(RingPosition.tabZone)
+                    Text(copy.aboveTabs).tag(RingPosition.aboveTabs)
+                    Text(copy.atThumb).tag(RingPosition.thumb)
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("duo.ringPosition")
+            }
             Picker("Language", selection: $model.language) {
                 ForEach(DemoLanguage.allCases) { Text(verbatim: $0.title).tag($0) }
             }
@@ -172,7 +220,9 @@ struct TabZoneScenario: View {
 
             Spacer(minLength: 0)
 
-            if step == .review && !showsAllTabs {
+            if control == .ring {
+                ringItems(copy)
+            } else if step == .review && !showsAllTabs {
                 GeometryReader { proxy in
                     SlideToConfirm(labels: model.language == .arabic ? .sendMoneyArabic : .sendMoney) {
                         try await Task.sleep(for: .seconds(1.3))
@@ -195,13 +245,57 @@ struct TabZoneScenario: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
-            if step != .review || tabsOnReview == .minimized || showsAllTabs {
+            if control == .track, step != .review || tabsOnReview == .minimized || showsAllTabs {
                 tabCapsule(minimized: step == .review && tabsOnReview == .minimized && !showsAllTabs)
                     .transition(.scale(scale: 0.6, anchor: .bottom).combined(with: .opacity))
             }
         }
         .frame(maxHeight: .infinity)
         .padding(.bottom, 20)
+    }
+
+    /// The ring and the tabs around it, for the ring control.
+    @ViewBuilder
+    private func ringItems(_ copy: DuoCopy) -> some View {
+        let isReview = step == .review && !showsAllTabs
+        if isReview && ringPosition == .thumb {
+            ring(copy)
+                .transition(.scale(scale: 0.4).combined(with: .opacity))
+            // Thumb height: a little below the middle of the bar, above the tabs.
+            Spacer(minLength: 0)
+                .frame(maxHeight: 16)
+        }
+        if isReview && ringPosition == .aboveTabs {
+            ring(copy)
+                .transition(.scale(scale: 0.4, anchor: .bottom).combined(with: .opacity))
+        }
+        if isReview && ringPosition == .tabZone {
+            ring(copy)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+        } else {
+            tabCapsule(minimized: isReview && ringPosition == .aboveTabs)
+                .transition(.scale(scale: 0.6, anchor: .bottom).combined(with: .opacity))
+        }
+    }
+
+    private func ring(_ copy: DuoCopy) -> some View {
+        HoldToConfirmButton(labels: model.language == .arabic ? .holdSendArabic : .holdSend, systemImage: "paperplane.fill") {
+            try await Task.sleep(for: .seconds(1.2))
+        }
+        .holdToConfirmConfiguration(.verticalBar.with { $0.completionStyle = .bounce })
+        .onHoldToConfirmStateChange { state in
+            guard state.phase == .success else { return }
+            Task {
+                try? await Task.sleep(for: .milliseconds(700))
+                step = .sent
+            }
+        }
+        .demoLanguage(model.language)
+        .padding(4)
+        .background(.regularMaterial, in: Circle())
+        .overlay(Circle().strokeBorder(DS.line))
+        .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
+        .accessibilityIdentifier("duo.control")
     }
 
     private func glassButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
@@ -250,8 +344,9 @@ struct TabZoneScenario: View {
 private struct DuoCopy {
     let formTitle, payee, payeeDetail, amount, review, reviewTitle, toLine: String
     let from, fromValue, reference, referenceValue, fee, arrives, arrivesValue: String
-    let hint, sent, sentDetail, done, back, close, share: String
+    let hint, ringHint, sent, sentDetail, done, back, close, share: String
     let tabsOnReview, hidden, minimized: String
+    let control, track, ring, ringPosition, inZone, aboveTabs, atThumb: String
 
     init(_ language: DemoLanguage) {
         let isolate = { (value: String) in "\u{2066}\(value)\u{2069}" }
@@ -261,17 +356,23 @@ private struct DuoCopy {
             review = "Review"; reviewTitle = "Review"; toLine = "To Sara Ahmed · ··8890"
             from = "From"; fromValue = "Current ··4521"; reference = "Reference"; referenceValue = "October rent"
             fee = "Fee"; arrives = "Arrives"; arrivesValue = "Today"
-            hint = "Slide or hold on the right to send"; sent = "Sent"; sentDetail = "AED 2,500.00 to Sara Ahmed"
+            hint = "Slide or hold on the right to send"; ringHint = "Hold the ring on the right to send"
+            sent = "Sent"; sentDetail = "AED 2,500.00 to Sara Ahmed"
             done = "Done"; back = "Back"; close = "Close"; share = "Share receipt"
             tabsOnReview = "Tabs on Review"; hidden = "Hidden"; minimized = "Minimized"
+            control = "Control"; track = "Track"; ring = "Hold ring"
+            ringPosition = "Ring on Review"; inZone = "Tab zone"; aboveTabs = "Above tabs"; atThumb = "Thumb height"
         case .arabic:
             formTitle = "إرسال الأموال"; payee = "سارة أحمد"; payeeDetail = "مستفيد محفوظ · " + isolate("··8890"); amount = "المبلغ"
             review = "مراجعة"; reviewTitle = "مراجعة"; toLine = "إلى سارة أحمد · " + isolate("··8890")
             from = "من"; fromValue = "الجاري " + isolate("··4521"); reference = "المرجع"; referenceValue = "إيجار أكتوبر"
             fee = "الرسوم"; arrives = "الوصول"; arrivesValue = "اليوم"
-            hint = "اسحب أو اضغط مطولاً يميناً للإرسال"; sent = "تم الإرسال"; sentDetail = isolate("2,500.00") + " درهم إلى سارة أحمد"
+            hint = "اسحب أو اضغط مطولاً يميناً للإرسال"; ringHint = "اضغط مطولاً على الدائرة يميناً للإرسال"
+            sent = "تم الإرسال"; sentDetail = isolate("2,500.00") + " درهم إلى سارة أحمد"
             done = "تم"; back = "رجوع"; close = "إغلاق"; share = "مشاركة الإيصال"
             tabsOnReview = "التبويبات في المراجعة"; hidden = "مخفية"; minimized = "مصغّرة"
+            control = "عنصر التأكيد"; track = "مسار"; ring = "دائرة الضغط"
+            ringPosition = "الدائرة في المراجعة"; inZone = "مكان التبويبات"; aboveTabs = "فوق التبويبات"; atThumb = "عند الإبهام"
         }
     }
 }

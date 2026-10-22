@@ -2,7 +2,7 @@ import SlideToConfirm
 import SwiftUI
 import UIKit
 
-/// Hosts a plain UIKit view controller that uses `SlideToConfirmControl`.
+/// Hosts a plain UIKit view controller that uses `SlideToConfirmControl` and `HoldToConfirmControl`.
 struct UIKitScenario: View {
     var body: some View {
         UIKitDemoRepresentable()
@@ -28,6 +28,11 @@ final class UIKitDemoViewController: UIViewController {
             processing: "Approving…",
             success: "Approved"
         )
+    )
+    private let holdControl = HoldToConfirmControl(
+        labels: SlideToConfirmLabels("Hold to flag", holding: "Keep holding…", processing: "Flagging…", success: "Flagged"),
+        systemImage: "flag.fill",
+        configuration: .compact.with { $0.labelPosition = .trailing }
     )
     private let log = UILabel()
     private var events: [String] = []
@@ -86,7 +91,16 @@ final class UIKitDemoViewController: UIViewController {
         }
         control.accessibilityIdentifier = "uikit.control"
 
-        let stack = UIStackView(arrangedSubviews: [title, detail, logContainer, UIView(), reset, control])
+        holdControl.action = { [weak self] _ in
+            try await Task.sleep(for: .seconds(0.8))
+            self?.append("flagged with HoldToConfirmControl")
+        }
+        holdControl.addAction(UIAction { [weak self] _ in
+            self?.append("hold primaryActionTriggered")
+        }, for: .primaryActionTriggered)
+        holdControl.accessibilityIdentifier = "uikit.hold"
+
+        let stack = UIStackView(arrangedSubviews: [title, detail, logContainer, UIView(), holdControl, reset, control])
         stack.axis = .vertical
         stack.spacing = 16
         stack.setCustomSpacing(8, after: title)

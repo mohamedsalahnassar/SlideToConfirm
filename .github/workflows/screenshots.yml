@@ -68,6 +68,8 @@ jobs:
         run: |
           scripts/record-demo.sh "$SIMULATOR_ID" build/DerivedData docs/images/demo-light.gif light
           scripts/record-demo.sh "$SIMULATOR_ID" build/DerivedData docs/images/demo-dark.gif dark
+          scripts/record-demo.sh "$SIMULATOR_ID" build/DerivedData docs/images/hold-demo-light.gif light testRecordHoldDemo
+          scripts/record-demo.sh "$SIMULATOR_ID" build/DerivedData docs/images/hold-demo-dark.gif dark testRecordHoldDemo
 
       - name: Commit images
         run: |

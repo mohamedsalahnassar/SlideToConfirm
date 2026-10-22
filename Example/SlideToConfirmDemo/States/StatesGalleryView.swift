@@ -78,6 +78,28 @@ struct StatesGalleryView: View {
                     }
                     .padding(20)
                     .background(surface.color, in: RoundedRectangle(cornerRadius: DS.cornerRadius, style: .continuous))
+
+                    SectionHeader(eyebrow: "The circle", title: "HoldToConfirmButton", lead: "Same states, same engine. Frozen with holdToConfirmPreviewState(_:).")
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 8)], spacing: 18) {
+                        ForEach(Array(circleStates.enumerated()), id: \.offset) { _, item in
+                            let (state, title) = item
+                            VStack(spacing: 10) {
+                                HoldToConfirmButton(labels: .holdSend, systemImage: "paperplane.fill") {}
+                                    .holdToConfirmConfiguration(.compact.with {
+                                        $0.labelPosition = .hidden
+                                        $0.theme = surface == .brand ? .brand : .standard
+                                    })
+                                    .holdToConfirmPreviewState(state)
+                                    .environment(\.colorScheme, surface.colorScheme)
+                                Text(title)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(surface.secondaryText)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 22)
+                    .padding(.horizontal, 12)
+                    .background(surface.color, in: RoundedRectangle(cornerRadius: DS.cornerRadius, style: .continuous))
                 }
                 .padding(.horizontal, DS.gutter)
                 .padding(.vertical, 12)
@@ -92,6 +114,15 @@ struct StatesGalleryView: View {
             }
         }
     }
+
+    private let circleStates: [(HoldToConfirmPreviewState, LocalizedStringKey)] = [
+        (.idle, "Idle"),
+        (.holding(progress: 0.6), "Holding"),
+        (.processing, "Processing"),
+        (.success, "Success"),
+        (.failure(), "Failure"),
+        (.disabled, "Disabled"),
+    ]
 
     private func control(_ state: SlideToConfirmPreviewState, surface: StageSurface, arabic: Bool = false) -> some View {
         SlideToConfirm(labels: arabic ? .sendMoneyArabic : .sendMoney) {}

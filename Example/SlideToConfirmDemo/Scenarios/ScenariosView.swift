@@ -9,6 +9,7 @@ enum Scenario: String, CaseIterable, Identifiable, Hashable {
     case deleteAccount = "delete"
     case emergency = "sos"
     case garage
+    case workout
     case tabZone = "tabzone"
     case uikit
 
@@ -22,6 +23,7 @@ enum Scenario: String, CaseIterable, Identifiable, Hashable {
         case .deleteAccount: return "Delete an account"
         case .emergency: return "Emergency SOS"
         case .garage: return "Open the garage"
+        case .workout: return "End a workout"
         case .tabZone: return "Vertical bar · iPhone Duo"
         case .uikit: return "UIKit integration"
         }
@@ -35,7 +37,8 @@ enum Scenario: String, CaseIterable, Identifiable, Hashable {
         case .deleteAccount: return "Destructive theme, a calm fill hold of 2 seconds and an accessibility alert as a second step."
         case .emergency: return "Hold only: the knob can't be dragged, so it never fires by accident. A 3-second countdown."
         case .garage: return "A vertical track that slides up, driving an illustration from the control's progress."
-        case .tabZone: return "The control takes the tab bar's place as a pull-down track on a trailing vertical bar."
+        case .workout: return "A hold circle that counts down three seconds, so a pocket tap pauses but never ends the run."
+        case .tabZone: return "A pull-down track in the tab zone of a trailing vertical bar, or a 48 pt hold ring in three positions."
         case .uikit: return "SlideToConfirmControl in a UIKit view controller with Auto Layout and target-action."
         }
     }
@@ -48,6 +51,7 @@ enum Scenario: String, CaseIterable, Identifiable, Hashable {
         case .deleteAccount: return "trash.fill"
         case .emergency: return "sos"
         case .garage: return "door.garage.open"
+        case .workout: return "figure.run"
         case .tabZone: return "sidebar.right"
         case .uikit: return "square.stack.3d.down.right.fill"
         }
@@ -61,6 +65,7 @@ enum Scenario: String, CaseIterable, Identifiable, Hashable {
         case .deleteAccount: return [Color(hex: 0xFF6B6B), Color(hex: 0xD92D3A)]
         case .emergency: return [Color(hex: 0xFF8A3D), Color(hex: 0xE5383B)]
         case .garage: return [Color(hex: 0xFFB547), Color(hex: 0xF07F13)]
+        case .workout: return [Color(hex: 0xB4F05A), Color(hex: 0x2FA866)]
         case .tabZone: return [Color(hex: 0x5B77FF), Color(hex: 0x13246F)]
         case .uikit: return [Color(hex: 0x6E7891), Color(hex: 0x3A4256)]
         }
@@ -74,7 +79,8 @@ enum Scenario: String, CaseIterable, Identifiable, Hashable {
         case .deleteAccount: return ["Fill hold", "Destructive", "A11y alert"]
         case .emergency: return ["Hold only", "Large"]
         case .garage: return ["Slide up", "State observer"]
-        case .tabZone: return ["Slide down", "Vertical bar"]
+        case .workout: return ["Hold circle", "Countdown", "Morph"]
+        case .tabZone: return ["Slide down", "Hold ring", "Vertical bar"]
         case .uikit: return ["UIKit", "Auto Layout"]
         }
     }
@@ -88,6 +94,7 @@ enum Scenario: String, CaseIterable, Identifiable, Hashable {
         case .deleteAccount: DeleteAccountScenario()
         case .emergency: EmergencyScenario()
         case .garage: GarageScenario()
+        case .workout: WorkoutScenario()
         case .tabZone: TabZoneScenario()
         case .uikit: UIKitScenario()
         }

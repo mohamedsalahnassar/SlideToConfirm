@@ -7,10 +7,10 @@ struct SlideToConfirmDemoApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if model.isRecordingStage {
-                    RecordingStageView()
-                } else {
-                    RootView()
+                switch model.recordingStage {
+                case .slide: RecordingStageView()
+                case .hold: HoldRecordingStageView()
+                case nil: RootView()
                 }
             }
             .environment(model)
@@ -29,6 +29,9 @@ struct RootView: View {
             ShowcaseView()
                 .tabItem { Label("Showcase", systemImage: "sparkles") }
                 .tag(AppModel.Tab.showcase)
+            HoldView()
+                .tabItem { Label("Hold", systemImage: "circle.circle.fill") }
+                .tag(AppModel.Tab.hold)
             ScenariosView()
                 .tabItem { Label("Scenarios", systemImage: "square.stack.3d.up.fill") }
                 .tag(AppModel.Tab.scenarios)
