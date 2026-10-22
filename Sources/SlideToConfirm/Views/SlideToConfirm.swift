@@ -210,7 +210,6 @@ public struct SlideToConfirm: View {
             .frame(width: length, height: thickness)
             .rotationEffect(rotation)
             .frame(width: size.width, height: size.height)
-
         }
         .contentShape(TrackShape(cornerRadius: configuration.cornerRadius))
         .gesture(dragGesture(layout: layout), including: isPreview ? .none : .all)
@@ -414,7 +413,7 @@ public struct SlideToConfirm: View {
 }
 
 /// Delivers each state change to the observer once.
-private final class StateReporter {
+final class StateReporter {
     private var lastReported: SlideToConfirmState?
 
     func report(_ state: SlideToConfirmState, to handler: ((SlideToConfirmState) -> Void)?) {
@@ -425,7 +424,7 @@ private final class StateReporter {
 }
 
 /// Return or Space confirms while the control has keyboard focus.
-private struct KeyboardActivation: ViewModifier {
+struct KeyboardActivation: ViewModifier {
     let isEnabled: Bool
     let activate: () -> Void
 

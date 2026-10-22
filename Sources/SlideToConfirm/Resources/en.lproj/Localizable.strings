@@ -18,3 +18,5 @@
 "Confirm" = "Confirm";
 /* Accessibility alert button. */
 "Cancel" = "Cancel";
+/* Shown when someone taps a hold-only control. */
+"Press and hold" = "Press and hold";

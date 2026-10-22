@@ -105,7 +105,8 @@ extension View {
         transformEnvironment(\.slideToConfirmConfiguration) { $0.holdBehavior = holdBehavior }
     }
 
-    /// Sets how confirm controls in this view play haptics.
+    /// Sets how confirm controls in this view play haptics. Applies to ``SlideToConfirm`` and
+    /// ``HoldToConfirmButton`` alike.
     public func slideToConfirmHaptics(_ haptics: SlideToConfirmHaptics) -> some View {
         environment(\.slideToConfirmHaptics, haptics)
     }
@@ -136,7 +137,8 @@ extension View {
     /// Asks for confirmation in an alert when VoiceOver, Switch Control or Voice Control activates
     /// a confirm control in this view, so there is still a second step for consequential actions.
     ///
-    /// Touch, drag and keyboard confirmations are not affected.
+    /// Touch, drag and keyboard confirmations are not affected. Applies to ``SlideToConfirm`` and
+    /// ``HoldToConfirmButton`` alike.
     public func slideToConfirmAccessibilityAlert(
         _ title: LocalizedStringKey,
         message: LocalizedStringKey? = nil,
@@ -156,6 +158,78 @@ extension View {
     /// so the last call always matches what the control is doing.
     public func onSlideToConfirmStateChange(_ action: @escaping (SlideToConfirmState) -> Void) -> some View {
         environment(\.slideToConfirmStateHandler, action)
+    }
+}
+
+// MARK: - Hold to confirm
+
+private struct HoldConfigurationKey: EnvironmentKey {
+    static var defaultValue: HoldToConfirmConfiguration { HoldToConfirmConfiguration() }
+}
+
+private struct HoldPreviewStateKey: EnvironmentKey {
+    static var defaultValue: HoldToConfirmPreviewState? { nil }
+}
+
+private struct HoldStateHandlerKey: EnvironmentKey {
+    static var defaultValue: ((SlideToConfirmState) -> Void)? { nil }
+}
+
+extension EnvironmentValues {
+    /// The configuration hold-to-confirm buttons in this environment use.
+    public var holdToConfirmConfiguration: HoldToConfirmConfiguration {
+        get { self[HoldConfigurationKey.self] }
+        set { self[HoldConfigurationKey.self] = newValue }
+    }
+
+    var holdToConfirmPreviewState: HoldToConfirmPreviewState? {
+        get { self[HoldPreviewStateKey.self] }
+        set { self[HoldPreviewStateKey.self] = newValue }
+    }
+
+    var holdToConfirmStateHandler: ((SlideToConfirmState) -> Void)? {
+        get { self[HoldStateHandlerKey.self] }
+        set { self[HoldStateHandlerKey.self] = newValue }
+    }
+}
+
+extension View {
+    /// Sets the configuration for hold-to-confirm buttons in this view.
+    public func holdToConfirmConfiguration(_ configuration: HoldToConfirmConfiguration) -> some View {
+        environment(\.holdToConfirmConfiguration, configuration)
+    }
+
+    /// Adjusts the inherited configuration for hold-to-confirm buttons in this view.
+    public func holdToConfirmConfiguration(
+        _ transform: @escaping (inout HoldToConfirmConfiguration) -> Void
+    ) -> some View {
+        transformEnvironment(\.holdToConfirmConfiguration, transform: transform)
+    }
+
+    /// Sets how hold-to-confirm buttons in this view show the hold.
+    public func holdToConfirmProgressStyle(_ style: HoldToConfirmProgressStyle) -> some View {
+        transformEnvironment(\.holdToConfirmConfiguration) { $0.progressStyle = style }
+    }
+
+    /// Sets how hold-to-confirm buttons in this view celebrate success.
+    public func holdToConfirmCompletionStyle(_ style: HoldToConfirmCompletionStyle) -> some View {
+        transformEnvironment(\.holdToConfirmConfiguration) { $0.completionStyle = style }
+    }
+
+    /// Sets the colors of hold-to-confirm buttons in this view.
+    public func holdToConfirmTheme(_ theme: SlideToConfirmTheme) -> some View {
+        transformEnvironment(\.holdToConfirmConfiguration) { $0.theme = theme }
+    }
+
+    /// Freezes hold-to-confirm buttons in this view in `state`, for previews and snapshot tests.
+    public func holdToConfirmPreviewState(_ state: HoldToConfirmPreviewState?) -> some View {
+        environment(\.holdToConfirmPreviewState, state)
+    }
+
+    /// Calls `action` whenever a hold-to-confirm button in this view changes state, including
+    /// continuous progress while holding.
+    public func onHoldToConfirmStateChange(_ action: @escaping (SlideToConfirmState) -> Void) -> some View {
+        environment(\.holdToConfirmStateHandler, action)
     }
 }
 

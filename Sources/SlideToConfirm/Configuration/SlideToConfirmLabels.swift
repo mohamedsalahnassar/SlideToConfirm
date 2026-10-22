@@ -34,6 +34,8 @@ public struct SlideToConfirmLabels {
     public var failure: Text
     /// The accessibility hint, read after the label.
     public var accessibilityHint: Text
+    /// Shown briefly when someone taps a hold-only control instead of holding it.
+    public var tapHint: Text
 
     /// Creates labels from localized string keys.
     ///
@@ -49,6 +51,7 @@ public struct SlideToConfirmLabels {
         success: LocalizedStringKey? = nil,
         failure: LocalizedStringKey? = nil,
         accessibilityHint: LocalizedStringKey? = nil,
+        tapHint: LocalizedStringKey? = nil,
         tableName: String? = nil,
         bundle: Bundle? = nil
     ) {
@@ -62,7 +65,8 @@ public struct SlideToConfirmLabels {
             processing: text(processing),
             success: text(success),
             failure: text(failure),
-            accessibilityHint: text(accessibilityHint)
+            accessibilityHint: text(accessibilityHint),
+            tapHint: text(tapHint)
         )
     }
 
@@ -74,7 +78,8 @@ public struct SlideToConfirmLabels {
         processing: Text? = nil,
         success: Text? = nil,
         failure: Text? = nil,
-        accessibilityHint: Text? = nil
+        accessibilityHint: Text? = nil,
+        tapHint: Text? = nil
     ) {
         self.idle = idle
         self.armed = armed ?? Text("Release to confirm", bundle: .module)
@@ -83,6 +88,7 @@ public struct SlideToConfirmLabels {
         self.success = success ?? Text("Done", bundle: .module)
         self.failure = failure ?? Text("Failed · try again", bundle: .module)
         self.accessibilityHint = accessibilityHint ?? Text("Double-tap to confirm.", bundle: .module)
+        self.tapHint = tapHint ?? Text("Press and hold", bundle: .module)
     }
 
     func text(for label: ConfirmSnapshot.Label, failureMessage: String?) -> Text {
